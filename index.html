@@ -160,6 +160,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+
 <script>
     const firebaseConfig = { apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw", authDomain: "niceuc-e5986.firebaseapp.com", databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com", projectId: "niceuc-e5986", appId: "1:242221260650:web:d140153a2167c4738dcf13" };
     firebase.initializeApp(firebaseConfig);
@@ -176,8 +177,6 @@
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('admin-welcome').textContent = `Xoş gəldiniz, ${user.displayName}`;
             
-            // DÜZƏLİŞ: Modal pəncərəni bağlama kodunu bura köçürdük.
-            // Bu, səhifənin tam yükləndiyindən və heç bir xəta olmayacağından əmin olur.
             const modal = document.getElementById('historyModal');
             const closeBtn = document.querySelector('.close-btn');
             if (modal && closeBtn) {
@@ -395,4 +394,4 @@
     }
 
     function loadUsersAndBalances() { const usersRef = db.ref('users'); const balancesRef = db.ref('balances'); usersRef.on('value', (userSnapshot) => { balancesRef.on('value', (balanceSnapshot) => { masterUserList = []; if (!userSnapshot.exists()) { displayUsers([]); return; } const allBalances = balanceSnapshot.val() || {}; userSnapshot.forEach(childSnapshot => { const uid = childSnapshot.key; const userData = childSnapshot.val(); const userBalance = allBalances[uid] && allBalances[uid].amount ? allBalances[uid].amount : 0; masterUserList.push({ uid: uid, displayName: userData.displayName, email: userData.email, balance: userBalance }); }); document.getElementById('userSearchInput').dispatchEvent(new Event('input')); }); }); }
-    document.getElementById('userSearchInput').addEventListener('input', (e) => { const searchTerm = e.target.value.toLowerCas
+    document.getElementById('userSearchInput').addEventListener('input', (e) => { const searchTerm = e.target.value.toLowerCase(); if (!searchTerm) { displayUsers(masterUserList); return; } const filteredList = masterUserList.filter(user => { const name = user.displayName ? user.displ
