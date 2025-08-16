@@ -2,7 +2,7 @@
 <html lang="az">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Para Çuvalı</title>
 <style>
 :root{
@@ -10,12 +10,14 @@
   --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
 body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial,'Apple Color Emoji','Segoe UI Emoji';
   color:var(--text); background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
-  display:flex; justify-content:center; align-items:center; min-height:100vh; overflow:hidden;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; overflow:hidden;
 }
-.wrap{display:grid; place-items:center; gap:12px; text-align:center; padding:20px;}
+.wrap{display:grid;place-items:center;gap:12px;text-align:center;padding:20px;}
 .user-info{font-size:1rem;font-weight:600;opacity:.9;margin-bottom:6px;}
 .card{
   position:relative; width:min(60vw,320px); aspect-ratio:1/1; display:grid; place-items:center;
@@ -26,24 +28,20 @@ body{
 }
 .bag{font-size:clamp(5rem,18vw,12rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
-.balance{margin-top:10px; display:grid; place-items:center; font-weight:700; letter-spacing:1px; text-shadow:0 2px 5px rgba(0,0,0,0.5);}
-.balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem); opacity:.9; margin-right:4px;}
-.balance .value{font-size:clamp(1.5rem,5vw,2.5rem); line-height:1;}
-.google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600; }
-
+.balance{margin-top:10px;display:grid;place-items:center;font-weight:700;letter-spacing:1px;text-shadow:0 2px 5px rgba(0,0,0,0.5);}
+.balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem);opacity:.9;margin-right:4px;}
+.balance .value{font-size:clamp(1.5rem,5vw,2.5rem);line-height:1;}
+.google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600;}
 .action-buttons button { position: fixed; right: 20px; padding: 8px 14px; font-size: 0.9rem; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
 #payBtn { top: 20px; background: #22c55e; }
 #cekBtn { top: 58px; background: #2563eb; }
 #pulCekBtn { top: 96px; background: #f59e0b; }
-
 #notification-bell { position: fixed; top: 20px; left: 20px; font-size: 28px; cursor: pointer; user-select: none; z-index: 10000; }
 #notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
-
 .modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
 .modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color:white; width: min(90vw, 350px); }
 .modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: #FFFFFF; color: #212529; font-size: 1rem; }
 .modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
-
 #notifications-list { max-height: 400px; overflow-y: auto; text-align: left; margin-top: 15px; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
 .notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
 .notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -54,7 +52,6 @@ body{
 .status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
 .status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
 .status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
-
 #support-widget { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
 #chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
 #chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
@@ -68,159 +65,242 @@ body{
 #chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
 #send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
 
+/* GİRİŞ ANİMASİYASI ÜÇÜN STİLLƏR */
+#preloader {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out;
+}
+#animated-bag {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0;
+  filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35));
+}
+.content-wrapper {
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+/* BALANS ARTMA ANİMASİYASI (MƏTN) */
+.balance-update-text { animation: text-flash 0.7s ease-in-out; }
+@keyframes text-flash {
+  0% { color: var(--text); transform: scale(1); }
+  50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); }
+  100% { color: var(--text); transform: scale(1); }
+}
+
+/* SİKKƏ YAĞIŞI ANİMASİYASI */
+.coin {
+  position: fixed;
+  top: -50px;
+  font-size: 2rem;
+  z-index: 9998;
+  pointer-events: none;
+  animation-name: fall-and-fade;
+  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  animation-fill-mode: forwards;
+}
+@keyframes fall-and-fade {
+  from {
+    transform: translateY(0) rotateZ(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(65vh) rotateZ(360deg);
+    opacity: 0;
+  }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="user-info" id="userEmail">Giriş olunmamış</div>
-  <div class="card">
-    <div class="bag">💰</div>
-    <div class="balance"><span class="symbol">$</span><span class="value" id="balanceValue">0</span></div>
-  </div>
-  <button class="google-btn" onclick="loginWithGoogle()">Google Giriş</button>
-</div>
 
-<!-- Bildirişlər -->
-<div id="notification-bell">🔔
-  <div id="notification-badge">0</div>
-</div>
+<div id="preloader"></div>
+<div id="animated-bag">💰</div>
 
-<div class="modalOverlay" id="notificationsModal">
+<div class="content-wrapper">
+    <div id="notification-bell"><span>🔔</span><div id="notification-badge" style="display:none;">1</div></div>
+    <div class="wrap"><div id="userInfo" class="user-info"></div><div class="card"><div class="bag">💰</div><div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div></div><button class="google-btn" id="loginBtn">🌐 Giriş</button></div>
+    <div class="action-buttons">
+        <button id="payBtn">💲 YÜKLƏ</button>
+        <button id="cekBtn">📷 ÇEK</button>
+        <button id="pulCekBtn">🏦 ÇEK</button>
+        <button id="showHistoryBtn" style="background:#8b5cf6; top: 134px;">📜 Tarixçə</button>
+    </div>
+    <!-- MODAL TARİXÇƏ ÜÇÜN -->
+<div id="historyModal" class="modalOverlay">
   <div class="modalContent">
-    <h3>Balans Tarixçəsi</h3>
+    <h2>Balans Tarixçəsi</h2>
     <div id="notifications-list"></div>
-    <button onclick="closeNotifications()">Bağla</button>
+    <button onclick="closeHistory()">Bağla</button>
   </div>
 </div>
 
-<!-- Chat Widget -->
+<!-- CHAT / SUPPORT WIDGET -->
 <div id="support-widget">
-  <button id="chat-toggle-btn">💬
-    <div id="chat-notification-badge">0</div>
-  </button>
+  <button id="chat-toggle-btn">💬<div id="chat-notification-badge">0</div></button>
   <div id="chat-window">
     <div id="chat-header">Dəstək</div>
     <div id="chat-messages"></div>
     <div id="chat-input-area">
-      <input type="text" id="chat-input" placeholder="Mesaj yazın...">
+      <input type="text" id="chat-input" placeholder="Mesaj yaz..." />
       <button id="send-chat-btn">Göndər</button>
     </div>
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DB_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_BUCKET",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.database();
 
+const loginBtn = document.getElementById('loginBtn');
+const userInfo = document.getElementById('userInfo');
+const balanceEl = document.getElementById('balance');
+const notificationsList = document.getElementById('notifications-list');
+const notificationBadge = document.getElementById('notification-badge');
+const historyModal = document.getElementById('historyModal');
+
 let currentUser = null;
-function loginWithGoogle(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).then(result=>{
-    currentUser = result.user;
-    document.getElementById('userEmail').textContent = currentUser.email;
-    loadBalance();
-    loadHistory();
-  });
-}
+let transactionHistory = [];
 
-function loadBalance(){
-  if(!currentUser) return;
-  const balRef = db.ref('users/'+currentUser.uid+'/balance');
-  balRef.on('value', snapshot=>{
-    const val = snapshot.val() || 0;
-    document.getElementById('balanceValue').textContent = val;
-  });
-}
+loginBtn.onclick = async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+        const result = await auth.signInWithPopup(provider);
+        currentUser = result.user;
+        userInfo.textContent = currentUser.email;
+        loginBtn.style.display = 'none';
+        loadBalance();
+        loadTransactionHistory();
+    } catch (error) {
+        alert('Login xətası: ' + error.message);
+    }
+};
 
-function addBalance(amount, status='approved'){
-  if(!currentUser) return;
-  const balRef = db.ref('users/'+currentUser.uid+'/balance');
-  balRef.transaction(current=>{
-    return (current || 0) + amount;
-  });
-  const histRef = db.ref('users/'+currentUser.uid+'/history');
-  histRef.push({type:'Artım', amount:amount, status:status, date:new Date().toLocaleString()});
-  updateNotifications();
-}
-
-function subtractBalance(amount, status='approved'){
-  if(!currentUser) return;
-  const balRef = db.ref('users/'+currentUser.uid+'/balance');
-  balRef.transaction(current=>{
-    return (current || 0) - amount;
-  });
-  const histRef = db.ref('users/'+currentUser.uid+'/history');
-  histRef.push({type:'Azalma', amount:amount, status:status, date:new Date().toLocaleString()});
-  updateNotifications();
-}
-
-function loadHistory(){
-  if(!currentUser) return;
-  const histRef = db.ref('users/'+currentUser.uid+'/history');
-  histRef.on('value', snapshot=>{
-    const list = document.getElementById('notifications-list');
-    list.innerHTML = '';
-    let count = 0;
-    snapshot.forEach(child=>{
-      count++;
-      const item = child.val();
-      const div = document.createElement('div');
-      div.className = 'notification-item status-'+item.status;
-      div.innerHTML = `
-        <div class="notification-item-header">
-          <span>${item.type}</span>
-          <span class="notification-item-status">${item.status}</span>
-        </div>
-        <div class="notification-item-body">${item.amount}$</div>
-        <div class="notification-item-footer">${item.date}</div>
-      `;
-      list.appendChild(div);
+function loadBalance() {
+    if (!currentUser) return;
+    db.ref('balances/' + currentUser.uid).once('value').then(snapshot => {
+        const val = snapshot.val() || 0;
+        balanceEl.textContent = val.toFixed(2);
     });
-    const badge = document.getElementById('notification-badge');
-    badge.style.display = count>0?'flex':'none';
-    badge.textContent = count;
-  });
 }
 
-document.getElementById('notification-bell').addEventListener('click', ()=>{
-  document.getElementById('notificationsModal').style.display='flex';
-});
-
-function closeNotifications(){
-  document.getElementById('notificationsModal').style.display='none';
+function updateBalance(amount, reason) {
+    if (!currentUser) return;
+    const ref = db.ref('balances/' + currentUser.uid);
+    ref.transaction(current => {
+        const newBalance = (current || 0) + amount;
+        addTransaction(newBalance, amount, reason);
+        return newBalance;
+    });
 }
 
-function updateNotifications(){ loadHistory(); }
+function addTransaction(newBalance, amount, reason) {
+    if (!currentUser) return;
+    const time = new Date().toLocaleString('az-AZ', { day: '2-digit', month: 'long', year: 'numeric' });
+    const transaction = { time, amount, reason, balance: newBalance };
+    transactionHistory.unshift(transaction);
+    db.ref('transactions/' + currentUser.uid).push(transaction);
+    renderTransactionHistory();
+    showNotification(transaction);
+    balanceEl.textContent = newBalance.toFixed(2);
+}
 
-/* Chat widget */
+function loadTransactionHistory() {
+    if (!currentUser) return;
+    db.ref('transactions/' + currentUser.uid).once('value').then(snapshot => {
+        const data = snapshot.val();
+        transactionHistory = data ? Object.values(data).reverse() : [];
+        renderTransactionHistory();
+    });
+}
+
+function renderTransactionHistory() {
+    notificationsList.innerHTML = '';
+    transactionHistory.forEach(tx => {
+        const div = document.createElement('div');
+        div.classList.add('notification-item', tx.amount >=0 ? 'status-approved':'status-rejected');
+        div.innerHTML = `
+            <div class="notification-item-header">
+                <span class="notification-item-amount">${tx.amount >=0 ? '+' : ''}${tx.amount} AZN</span>
+                <span class="notification-item-status">${tx.amount >=0 ? 'Artdı':'Azaldı'}</span>
+            </div>
+            <div class="notification-item-body">${tx.reason}</div>
+            <div class="notification-item-footer">${tx.time}</div>
+        `;
+        notificationsList.appendChild(div);
+    });
+    notificationBadge.style.display = transactionHistory.length ? 'block':'none';
+}
+
+document.getElementById('showHistoryBtn').onclick = () => {
+    historyModal.style.display = 'flex';
+};
+
+function closeHistory() {
+    historyModal.style.display = 'none';
+}
+
+/* BUTTON ACTIONS */
+document.getElementById('payBtn').onclick = () => {
+    const amount = parseFloat(prompt('Neçə AZN yükləyirsiz?'));
+    if(!isNaN(amount)) updateBalance(amount, 'Yükləmə');
+};
+
+document.getElementById('cekBtn').onclick = () => {
+    const amount = parseFloat(prompt('Çəkmək istədiyiniz məbləğ?'));
+    if(!isNaN(amount)) updateBalance(-amount, 'Çəkilmə');
+};
+
+document.getElementById('pulCekBtn').onclick = () => {
+    const amount = parseFloat(prompt('Bankdan çəkmək istədiyiniz məbləğ?'));
+    if(!isNaN(amount)) updateBalance(-amount, 'Bank Çəkilməsi');
+};
+
+/* PRELOADER ANİMASİYASI */
+window.onload = () => {
+    const preloader = document.getElementById('preloader');
+    const bag = document.getElementById('animated-bag');
+    const content = document.querySelector('.content-wrapper');
+    bag.style.opacity = '1';
+    setTimeout(()=>{
+        preloader.style.opacity='0';
+        setTimeout(()=>{ preloader.style.display='none'; content.style.opacity='1'; content.style.visibility='visible'; }, 1000);
+    },2000);
+};
+
+/* SUPPORT / CHAT WIDGET */
 const chatBtn = document.getElementById('chat-toggle-btn');
 const chatWindow = document.getElementById('chat-window');
+const sendBtn = document.getElementById('send-chat-btn');
 const chatInput = document.getElementById('chat-input');
 const chatMessages = document.getElementById('chat-messages');
-const chatBadge = document.getElementById('chat-notification-badge');
 
-chatBtn.addEventListener('click', ()=>{ chatWindow.style.display = chatWindow.style.display==='flex'?'none':'flex'; chatBadge.style.display='none'; });
+chatBtn.onclick = () => {
+    chatWindow.style.display = chatWindow.style.display==='flex'?'none':'flex';
+};
 
-document.getElementById('send-chat-btn').addEventListener('click', ()=>{
-  const msg = chatInput.value.trim(); if(!msg) return;
-  const div = document.createElement('div'); div.className='message user'; div.textContent = msg; chatMessages.appendChild(div);
-  chatInput.value='';
-  setTimeout(()=>{ const reply = document.createElement('div'); reply.className='message admin'; reply.textContent='Təşəkkürlər, dərhal baxacağıq!'; chatMessages.appendChild(reply); chatBadge.style.display='flex'; chatBadge.textContent='1'; }, 1200);
-});
+sendBtn.onclick = () => {
+    const msg = chatInput.value.trim();
+    if(msg){
+        const div = document.createElement('div'); div.classList.add('message','user'); div.textContent = msg; chatMessages.appendChild(div);
+        chatInput.value=''; chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Burada admin mesajı simulasiya üçün əlavə edə bilərsən
+    }
+};
 </script>
 </body>
 </html>
