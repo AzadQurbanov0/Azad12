@@ -48,8 +48,6 @@
   .past-announcement-item { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
   .past-announcement-item p { margin: 0; white-space: pre-wrap; word-break: break-word; }
   .past-announcement-item .meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
-
-  /* --- YENİ --- MODAL PƏNCƏRƏ STİLLƏRİ --- */
   .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
   .modal-content { background-color: var(--bg-section); margin: 10% auto; padding: 20px; border: 1px solid var(--border-color); width: 90%; max-width: 700px; border-radius: 10px; position: relative; }
   .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; top: 10px; right: 20px; }
@@ -61,7 +59,6 @@
   #history-list .amount { font-weight: bold; }
   #history-list .amount.positive { color: var(--green); }
   #history-list .amount.negative { color: var(--red); }
-  /* --- YENİ STİLLƏRİN SONU --- */
 
   @media screen and (max-width: 768px) {
     body { padding: 10px; }
@@ -157,7 +154,7 @@
     <span class="close-btn">&times;</span>
     <h2 id="history-modal-title">Əməliyyat Tarixçəsi</h2>
     <ul id="history-list">
-        </ul>
+    </ul>
   </div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
@@ -194,11 +191,10 @@
         loadUsersAndBalances();
     }
     
-    // --- YENİ FUNKSİYALAR --- TARİXÇƏ SİSTEMİ ÜÇÜN ---
     function logTransaction(uid, type, amount, description) {
         const admin = auth.currentUser;
         const logData = {
-            type: type, // 'ADMIN_ADDITION', 'REJECT_REFUND'
+            type: type,
             amount: amount,
             description: description,
             adminName: admin ? admin.displayName : 'Sistem',
@@ -247,7 +243,6 @@
         });
     }
 
-    // Modal Pəncərəni Bağlamaq Üçün
     const modal = document.getElementById('historyModal');
     const closeBtn = document.querySelector('.close-btn');
     closeBtn.onclick = () => { modal.style.display = "none"; }
@@ -256,8 +251,7 @@
             modal.style.display = "none";
         }
     }
-    // --- YENİ FUNKSİYALARIN SONU ---
-
+    
     document.getElementById('sendAnnouncementBtn').addEventListener('click', sendAnnouncement);
 
     function sendAnnouncement() {
@@ -295,8 +289,6 @@
         db.ref('support_chats').on('value', snapshot => { let unreadCount = 0; if (snapshot.exists()) { snapshot.forEach(child => { if (child.val().new_message_for_admin) { unreadCount++; } }); } document.getElementById('stat-unread-msgs').textContent = unreadCount; });
     }
     
-    function addBalanceAndCreateHistory(userId, amountToAdd) { const amount = parseFloat(amountToAdd); if (!userId || isNaN(amount) || amount <= 0) { console.error("Düzgün istifadəçi ID və ya məbləğ daxil edilməyib."); return Promise.reject(new Error("Düzgün məbləğ daxil edilməyib.")); } const newDepositKey = db.ref('deposits').push().key; const updates = {}; updates['/deposits/' + newDepositKey] = { uid: userId, amount: amount, createdAt: firebase.database.ServerValue.TIMESTAMP }; updates['/balances/' + userId + '/amount'] = firebase.database.ServerValue.increment(amount); return db.ref().update(updates); }
-    
     async function updateRequestStatus(key, newStatus) { if (!confirm(`Bu sorğunu "${newStatus === 'approved' ? 'Onayla' : 'Rədd et'}" statusuna dəyişmək istəyirsiniz?`)) return; if (newStatus === 'approved') { db.ref('withdrawals/' + key).update({ status: newStatus }).then(() => alert("Sorğu təsdiqləndi.")).catch(error => alert("Xəta: " + error.message)); } else if (newStatus === 'rejected') { const withdrawalRef = db.ref('withdrawals/' + key); try { const snapshot = await withdrawalRef.once('value'); const requestData = snapshot.val(); if (!requestData || requestData.status !== 'pending') { alert("Bu sorğu artıq emal edilib və ya tapılmadı."); withdrawalRef.update({ status: newStatus }); return; } const amountToRefund = requestData.requestData.amount; const userId = requestData.uid; await db.ref('balances/' + userId + '/amount').set(firebase.database.ServerValue.increment(amountToRefund)); await withdrawalRef.update({ status: newStatus }); await logTransaction(userId, 'REJECT_REFUND', amountToRefund, `Çıxarış sorğusu rədd edildi, ${amountToRefund.toFixed(2)} AZN balansına geri qaytarıldı.`); alert(`Sorğu rədd edildi və məbləğ istifadəçinin balansına geri qaytarıldı.`); } catch (error) { alert("Sorğu rədd edilərkən xəta baş verdi: " + error.message); } } }
     
     function loadSupportChats() { const chatListContainer = document.getElementById('chat-list-container'); const chatRef = db.ref('support_chats').orderByChild('last_updated'); chatRef.on('value', snapshot => { chatListContainer.innerHTML = ''; if (!snapshot.exists()) { chatListContainer.innerHTML = '<p class="no-data">Heç bir söhbət yoxdur.</p>'; return; } let chats = []; snapshot.forEach(child => { chats.push({ uid: child.key, ...child.val() }); }); chats.reverse().forEach(chatData => { const item = document.createElement('div'); item.className = 'chat-list-item'; if (chatData.uid === currentChatUid) { item.classList.add('active'); } item.innerHTML = `<span>${chatData.user_email || 'Naməlum'}</span> ${chatData.new_message_for_admin ? '<div class="new-message-indicator"></div>' : ''}`; item.onclick = () => openChat(chatData.uid, chatData.user_email); chatListContainer.appendChild(item); }); }); document.getElementById('send-reply-btn').onclick = sendAdminReply; document.getElementById('reply-input').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAdminReply(); } }; }
@@ -311,6 +303,7 @@
         if (inputValue === '') return alert("Zəhmət olmasa, bir dəyər daxil edin.");
         const changeValue = parseFloat(inputValue);
         if (isNaN(changeValue)) return alert("Zəhmət olmasa, düzgün rəqəm daxil edin (məsələn: 50, +50, -20).");
+        
         try {
             const balanceSnapshot = await db.ref('balances/' + uid).once('value');
             const currentBalance = balanceSnapshot.exists() && balanceSnapshot.val().amount ? parseFloat(balanceSnapshot.val().amount) : 0;
@@ -324,7 +317,7 @@
                 finalBalance = changeValue;
             }
             
-            if(finalBalance < 0) finalBalance = 0; // Balans mənfi olmasın
+            if(finalBalance < 0) finalBalance = 0;
 
             if (amountChange > 0) {
                 logDescription = `Admin tərəfindən ${amountChange.toFixed(2)} AZN balans artırıldı.`;
@@ -338,8 +331,31 @@
             }
 
             if (confirm(`İstifadəçinin balansını ${finalBalance.toFixed(2)} AZN olaraq təyin etmək istəyirsiniz? Bu əməliyyat tarixçəyə yazılacaq.`)) {
-                await db.ref('balances/' + uid).update({ amount: finalBalance });
-                await logTransaction(uid, logType, amountChange, logDescription);
+                
+                const updates = {};
+                const historyKey = db.ref('transaction_history/' + uid).push().key;
+
+                updates['/balances/' + uid + '/amount'] = finalBalance;
+                updates['/transaction_history/' + uid + '/' + historyKey] = {
+                    type: logType,
+                    amount: amountChange,
+                    description: logDescription,
+                    adminName: auth.currentUser ? auth.currentUser.displayName : 'Sistem',
+                    adminEmail: auth.currentUser ? auth.currentUser.email : 'system',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                };
+
+                if (amountChange > 0) {
+                    const newDepositKey = db.ref('deposits').push().key;
+                    updates['/deposits/' + newDepositKey] = {
+                        uid: uid,
+                        amount: amountChange,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    };
+                }
+
+                await db.ref().update(updates);
+
                 alert("Balans uğurla yeniləndi və tarixçəyə qeyd edildi!");
                 inputElement.value = '';
             }
@@ -373,7 +389,4 @@
     }
 
     function loadUsersAndBalances() { const usersRef = db.ref('users'); const balancesRef = db.ref('balances'); usersRef.on('value', (userSnapshot) => { balancesRef.on('value', (balanceSnapshot) => { masterUserList = []; if (!userSnapshot.exists()) { displayUsers([]); return; } const allBalances = balanceSnapshot.val() || {}; userSnapshot.forEach(childSnapshot => { const uid = childSnapshot.key; const userData = childSnapshot.val(); const userBalance = allBalances[uid] && allBalances[uid].amount ? allBalances[uid].amount : 0; masterUserList.push({ uid: uid, displayName: userData.displayName, email: userData.email, balance: userBalance }); }); document.getElementById('userSearchInput').dispatchEvent(new Event('input')); }); }); }
-    document.getElementById('userSearchInput').addEventListener('input', (e) => { const searchTerm = e.target.value.toLowerCase(); if (!searchTerm) { displayUsers(masterUserList); return; } const filteredList = masterUserList.filter(user => { const name = user.displayName ? user.displayName.toLowerCase() : ''; const email = user.email ? user.email.toLowerCase() : ''; return name.includes(searchTerm) || email.includes(searchTerm); }); displayUsers(filteredList); });
-</script>
-</body>
-</html>
+    document.getElementById('userSearchInput').addEventListener('input', (e) => { const searchTerm = e.target.value.toLowerCase(); if (!searchTerm) { displayUsers(masterUserList); return; } const filteredList = masterUserList.filter(user => { const name = user.displayName ? user.displayName.toLowerCase() : ''; const email = user.email ? user.email.toLowerCase() : ''; return name.includes(searchTerm) || email.includes(searchTerm); }); displayUsers(
