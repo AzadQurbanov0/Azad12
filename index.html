@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Çuvalı</title>
+<style>
+:root{
+  --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e; --card:rgba(255,255,255,0.06);
+  --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial,'Apple Color Emoji','Segoe UI Emoji';
+  color:var(--text); background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
+  display:flex; justify-content:center; align-items:center; min-height:100vh; overflow:hidden;
+}
+.wrap{display:grid; place-items:center; gap:12px; text-align:center; padding:20px;}
+.user-info{font-size:1rem;font-weight:600;opacity:.9;margin-bottom:6px;}
+.card{
+  position:relative; width:min(60vw,320px); aspect-ratio:1/1; display:grid; place-items:center;
+  background: radial-gradient(60% 60% at 50% 30%,var(--glass),transparent 70%),var(--card);
+  border:1px solid rgba(255,255,255,0.14); border-radius:24px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  backdrop-filter:blur(6px);
+}
+.bag{font-size:clamp(5rem,18vw,12rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.balance{margin-top:10px; display:grid; place-items:center; font-weight:700; letter-spacing:1px; text-shadow:0 2px 5px rgba(0,0,0,0.5);}
+.balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem); opacity:.9; margin-right:4px;}
+.balance .value{font-size:clamp(1.5rem,5vw,2.5rem); line-height:1;}
+.google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600; }
+
+.action-buttons button { position: fixed; right: 20px; padding: 8px 14px; font-size: 0.9rem; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+#payBtn { top: 20px; background: #22c55e; }
+#cekBtn { top: 58px; background: #2563eb; }
+#pulCekBtn { top: 96px; background: #f59e0b; }
+
+#notification-bell { position: fixed; top: 20px; left: 20px; font-size: 28px; cursor: pointer; user-select: none; z-index: 10000; }
+#notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+
+.modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
+.modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color:white; width: min(90vw, 350px); }
+.modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: #FFFFFF; color: #212529; font-size: 1rem; }
+.modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
+
+#notifications-list { max-height: 400px; overflow-y: auto; text-align: left; margin-top: 15px; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+.notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
+.notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.notification-item-amount { font-size: 1.1rem; font-weight: bold; }
+.notification-item-status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; font-size: 0.8rem;}
+.notification-item-body { font-size: 0.85rem; opacity: 0.8; }
+.notification-item-footer { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
+.status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
+.status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
+.status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
+
+#support-widget { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
+#chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
+#chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
+#chat-window { position: absolute; bottom: 80px; right: 0; width: 320px; max-width: 90vw; height: 400px; background: var(--bg3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: none; flex-direction: column; overflow: hidden; }
+#chat-header { padding: 10px; background: rgba(0,0,0,0.2); font-weight: bold; text-align: center; }
+#chat-messages { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.message { max-width: 80%; padding: 8px 12px; border-radius: 10px; line-height: 1.4; word-break: break-word; }
+.message.user { background: #2563eb; color: white; align-self: flex-end; }
+.message.admin { background: #4b5563; color: white; align-self: flex-start; }
+#chat-input-area { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+#chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
+#send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="user-info" id="userEmail">Giriş olunmamış</div>
+  <div class="card">
+    <div class="bag">💰</div>
+    <div class="balance"><span class="symbol">$</span><span class="value" id="balanceValue">0</span></div>
+  </div>
+  <button class="google-btn" onclick="loginWithGoogle()">Google Giriş</button>
+</div>
+
+<!-- Bildirişlər -->
+<div id="notification-bell">🔔
+  <div id="notification-badge">0</div>
+</div>
+
+<div class="modalOverlay" id="notificationsModal">
+  <div class="modalContent">
+    <h3>Balans Tarixçəsi</h3>
+    <div id="notifications-list"></div>
+    <button onclick="closeNotifications()">Bağla</button>
+  </div>
+</div>
+
+<!-- Chat Widget -->
+<div id="support-widget">
+  <button id="chat-toggle-btn">💬
+    <div id="chat-notification-badge">0</div>
+  </button>
+  <div id="chat-window">
+    <div id="chat-header">Dəstək</div>
+    <div id="chat-messages"></div>
+    <div id="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Mesaj yazın...">
+      <button id="send-chat-btn">Göndər</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentUser = null;
+function loginWithGoogle(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).then(result=>{
+    currentUser = result.user;
+    document.getElementById('userEmail').textContent = currentUser.email;
+    loadBalance();
+    loadHistory();
+  });
+}
+
+function loadBalance(){
+  if(!currentUser) return;
+  const balRef = db.ref('users/'+currentUser.uid+'/balance');
+  balRef.on('value', snapshot=>{
+    const val = snapshot.val() || 0;
+    document.getElementById('balanceValue').textContent = val;
+  });
+}
+
+function addBalance(amount, status='approved'){
+  if(!currentUser) return;
+  const balRef = db.ref('users/'+currentUser.uid+'/balance');
+  balRef.transaction(current=>{
+    return (current || 0) + amount;
+  });
+  const histRef = db.ref('users/'+currentUser.uid+'/history');
+  histRef.push({type:'Artım', amount:amount, status:status, date:new Date().toLocaleString()});
+  updateNotifications();
+}
+
+function subtractBalance(amount, status='approved'){
+  if(!currentUser) return;
+  const balRef = db.ref('users/'+currentUser.uid+'/balance');
+  balRef.transaction(current=>{
+    return (current || 0) - amount;
+  });
+  const histRef = db.ref('users/'+currentUser.uid+'/history');
+  histRef.push({type:'Azalma', amount:amount, status:status, date:new Date().toLocaleString()});
+  updateNotifications();
+}
+
+function loadHistory(){
+  if(!currentUser) return;
+  const histRef = db.ref('users/'+currentUser.uid+'/history');
+  histRef.on('value', snapshot=>{
+    const list = document.getElementById('notifications-list');
+    list.innerHTML = '';
+    let count = 0;
+    snapshot.forEach(child=>{
+      count++;
+      const item = child.val();
+      const div = document.createElement('div');
+      div.className = 'notification-item status-'+item.status;
+      div.innerHTML = `
+        <div class="notification-item-header">
+          <span>${item.type}</span>
+          <span class="notification-item-status">${item.status}</span>
+        </div>
+        <div class="notification-item-body">${item.amount}$</div>
+        <div class="notification-item-footer">${item.date}</div>
+      `;
+      list.appendChild(div);
+    });
+    const badge = document.getElementById('notification-badge');
+    badge.style.display = count>0?'flex':'none';
+    badge.textContent = count;
+  });
+}
+
+document.getElementById('notification-bell').addEventListener('click', ()=>{
+  document.getElementById('notificationsModal').style.display='flex';
+});
+
+function closeNotifications(){
+  document.getElementById('notificationsModal').style.display='none';
+}
+
+function updateNotifications(){ loadHistory(); }
+
+/* Chat widget */
+const chatBtn = document.getElementById('chat-toggle-btn');
+const chatWindow = document.getElementById('chat-window');
+const chatInput = document.getElementById('chat-input');
+const chatMessages = document.getElementById('chat-messages');
+const chatBadge = document.getElementById('chat-notification-badge');
+
+chatBtn.addEventListener('click', ()=>{ chatWindow.style.display = chatWindow.style.display==='flex'?'none':'flex'; chatBadge.style.display='none'; });
+
+document.getElementById('send-chat-btn').addEventListener('click', ()=>{
+  const msg = chatInput.value.trim(); if(!msg) return;
+  const div = document.createElement('div'); div.className='message user'; div.textContent = msg; chatMessages.appendChild(div);
+  chatInput.value='';
+  setTimeout(()=>{ const reply = document.createElement('div'); reply.className='message admin'; reply.textContent='Təşəkkürlər, dərhal baxacağıq!'; chatMessages.appendChild(reply); chatBadge.style.display='flex'; chatBadge.textContent='1'; }, 1200);
+});
+</script>
+</body>
+</html>
