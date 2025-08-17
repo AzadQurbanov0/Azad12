@@ -120,7 +120,7 @@ body{
             document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
             db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
             if (balanceListener) balanceListener.off();
-            balanceListener = db.ref('balances/' ' + user.uid).on('value', snapshot => {
+            balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
                 const balanceData = snapshot.val();
                 let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
                 const balanceElement = document.getElementById('balance');
