@@ -92,17 +92,15 @@ body{
 .status-indicator.paused { background-color: var(--red); }
 .status-text .label { font-weight: bold; display: block; margin-bottom: 4px; }
 .status-text .description { font-size: 0.9rem; opacity: 0.8; }
-
-/* === BİLDİRİŞ VƏ OYUN ÜÇÜN YENİ DƏYİŞİKLİKLƏR === */
 #countdown-banner {
   display: none;
   position: fixed;
   top: 20px;
   right: 20px;
-  transform: translateX(120%); /* Başlanğıcda ekran xaricində */
-  background: rgba(15, 12, 41, 0.8); /* Tünd fon */
+  transform: translateX(120%);
+  background: rgba(15, 12, 41, 0.8);
   backdrop-filter: blur(5px);
-  color: #f59e0b; /* Narıncı mətn */
+  color: #f59e0b;
   padding: 12px 20px;
   border-radius: 10px;
   border: 1px solid rgba(245, 158, 11, 0.3);
@@ -110,10 +108,10 @@ body{
   font-weight: 600;
   box-shadow: 0 6px 20px rgba(0,0,0,0.3);
   width: auto;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* Səlis gəliş animasiyası */
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #countdown-banner.visible {
-  transform: translateX(0); /* Ekrana daxil olma */
+  transform: translateX(0);
 }
 .falling-coin {
   position: fixed;
@@ -124,18 +122,7 @@ body{
   cursor: pointer;
   z-index: 10003;
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-  padding: 8px; /* Klik sahəsi */
-}
-.coin-fragment { /* YENİ: Partlama effekti üçün zərrəciklər */
-  position: absolute;
-  font-size: 0.5rem;
-  color: #facc15;
-  pointer-events: none;
-  animation: shatter-effect 0.6s ease-out forwards;
-}
-@keyframes shatter-effect { /* YENİ: Partlama animasiyası */
-  from { transform: translate(0, 0) scale(1); opacity: 1; }
-  to { transform: var(--transform-end); opacity: 0; }
+  padding: 5px; /* Klik sahəsi optimallaşdırıldı */
 }
 @keyframes fall-animation {
   from { transform: translateY(0) rotateZ(0deg); opacity: 1; }
@@ -152,11 +139,23 @@ body{
 #leaderboardModal .modalContent li:first-child {
     background: #f59e0b; color: var(--bg1); font-weight: bold;
 }
+/* YENİ: Oyun zamanı arxa planı kilidləyən örtük */
+#game-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10002; /* İkonlardan aşağıda, düymələrdən yuxarıda */
+    display: none;
+}
 </style>
 </head>
 <body>
 <div id="preloader"></div>
 <div id="animated-bag">💰</div>
+<div id="game-overlay"></div>
+
 <div id="countdown-banner">Para Yağışı <span id="countdown-timer">30</span> saniyəyə başlayır!</div>
 
 <div class="content-wrapper">
@@ -164,7 +163,7 @@ body{
     <div id="status-icon"><span>ℹ️</span></div>
     <div class="wrap"><div id="userInfo" class="user-info"></div><div class="card"><div class="bag">💰</div><div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div></div><button class="google-btn" id="loginBtn">🌐 Giriş</button></div>
     <div class="action-buttons"><button id="payBtn">💲 YÜKLƏ</button><button id="cekBtn">📷 ÇEK</button><button id="pulCekBtn">🏦 ÇEK</button></div>
-    <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
+        <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Hesab Çıxarışı və Elanlar</h3><div class="filter-buttons"><button class="filter-btn" onclick="fetchAndDisplayHistory('7d')">Son 7 gün</button><button class="filter-btn" onclick="fetchAndDisplayHistory('month')">Bu Ay</button><button class="filter-btn active" onclick="fetchAndDisplayHistory('all')">Bütün Tarixçə</button></div><div id="announcements-container"></div><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
@@ -232,13 +231,17 @@ body{
     document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
     document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
     let fetchAndDisplayHistory;
-    document.getElementById('notification-bell').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.'); const modal = document.getElementById('notificationsModal'); const list = document.getElementById('notifications-list'); const announcementsContainer = document.getElementById('announcements-container'); modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none'; announcementsContainer.innerHTML = ''; const announcementsRef = db.ref('announcements').limitToLast(5).once('value'); announcementsRef.then(announcementsSnapshot => { if (announcementsSnapshot.exists()) { let announcements = []; announcementsSnapshot.forEach(child => { announcements.push(child.val()); }); announcements.reverse().forEach(ann => { const annDiv = document.createElement('div'); annDiv.className = 'announcement-item'; annDiv.innerHTML = `<p class="announcement-text">${ann.text}</p><div class="announcement-meta">${new Date(ann.createdAt).toLocaleDateString()}</div>`; announcementsContainer.appendChild(annDiv); }); } }); fetchAndDisplayHistory = function(filterType = 'all') { list.innerHTML = '<p>Yüklənir...</p>'; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); const activeButton = [...document.querySelectorAll('.filter-btn')].find(btn => btn.getAttribute('onclick').includes(`'${filterType}'`)); if (activeButton) activeButton.classList.add('active'); let startTime = 0; const now = new Date(); if (filterType === '7d') { startTime = now.setDate(now.getDate() - 7); } else if (filterType === 'month') { startTime = new Date(now.getFullYear(), now.getMonth(), 1).getTime(); } const withdrawalsRef = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).once('value'); const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(user.uid).once('value'); Promise.all([withdrawalsRef, depositsRef]).then(([withdrawalsSnapshot, depositsSnapshot]) => { let allTransactions = []; withdrawalsSnapshot.forEach(child => { allTransactions.push({ key: child.key, ...child.val() }); }); depositsSnapshot.forEach(child => { allTransactions.push({ ...child.val(), type: 'deposit' }); }); const filteredTransactions = allTransactions.filter(item => item.createdAt >= startTime); if (filteredTransactions.length === 0) { list.innerHTML = '<p>Bu dövr üçün heç bir əməliyyat tapılmadı.</p>'; return; } filteredTransactions.sort((a, b) => b.createdAt - a.createdAt); list.innerHTML = ''; filteredTransactions.forEach(data => { const itemDiv = document.createElement('div'); if (data.type === 'deposit') { itemDiv.className = 'notification-item status-deposit'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount positive">+${parseFloat(data.amount).toFixed(2)} AZN</span><span class="notification-item-status">Mədaxil</span></div><div class="notification-item-body"><span>Balansınıza vəsait əlavə edildi.</span></div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } else { const reqData = data.requestData; let statusText, statusClass; switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; case 'pending': statusText = 'Gözləmədə'; statusClass = 'status-pending'; break; case 'cancelled': statusText = 'Ləğv Edildi'; statusClass = 'status-cancelled'; break; default: statusText = data.status; statusClass = 'status-cancelled'; } let actionHtml = ''; if (data.status === 'pending') { actionHtml = `<button class="cancel-btn" onclick="cancelWithdrawal('${data.key}', ${reqData.amount})">Ləğv Et</button>`; } itemDiv.className = `notification-item ${statusClass}`; const maskedCardNumber = reqData.cardNumber ? '**** ' + reqData.cardNumber.slice(-4) : 'Kart məlumatı yoxdur'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount negative">-${parseFloat(reqData.amount).toFixed(2)} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body"><span>Kart: ${maskedCardNumber}</span> ${actionHtml}</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } list.appendChild(itemDiv); }); }).catch(error => { list.innerHTML = '<p>Məlumatları yükləyərkən xəta baş verdi.</p>'; console.error("Error fetching data:", error); }); }; fetchAndDisplayHistory('all'); });
+    document.getElementById('notification-bell').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.'); const modal = document.getElementById('notificationsModal'); const list = document.getElementById('notifications-list'); const announcementsContainer = document.getElementById('announcements-container'); modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none'; announcementsContainer.innerHTML = ''; const announcementsRef = db.ref('announcements').limitToLast(5).once('value'); announcementsRef.then(announcementsSnapshot => { if (announcementsSnapshot.exists()) { let announcements = []; announcementsSnapshot.forEach(child => { announcements.push(child.val()); }); announcements.reverse().forEach(ann => { const annDiv = document.createElement('div'); annDiv.className = 'announcement-item'; annDiv.innerHTML = `<p class="announcement-text">${ann.text}</p><div class="announcement-meta">${new Date(ann.createdAt).toLocaleDateString()}</div>`; announcementsContainer.appendChild(annDiv); }); } }); fetchAndDisplayHistory = function(filterType = 'all') { list.innerHTML = '<p>Yüklənir...</p>'; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); const activeButton = [...document.querySelectorAll('.filter-btn')].find(btn => btn.getAttribute('onclick').includes(`'${filterType}'`)); if (activeButton) activeButton.classList.add('active'); let startTime = 0; const now = new Date(); if (filterType === '7d') { startTime = now.setDate(now.getDate() - 7); } else if (filterType === 'month') { startTime = new Date(now.getFullYear(), now.getMonth(), 1).getTime(); } const withdrawalsRef = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).once('value'); const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(user.uid).once('value'); Promise.all([withdrawalsRef, depositsRef]).then(([withdrawalsSnapshot, depositsSnapshot]) => { let allTransactions = []; withdrawalsSnapshot.forEach(child => { allTransactions.push({ key: child.key, ...child.val() }); }); depositsSnapshot.forEach(child => { allTransactions.push({ ...child.val(), type: 'deposit' }); }); const filteredTransactions = allTransactions.filter(item => item.createdAt >= startTime); if (filteredTransactions.length === 0) { list.innerHTML = '<p>Bu dövr üçün heç bir əməliyyat tapılmadı.</p>'; return; } filteredTransactions.sort((a, b) => b.createdAt - a.createdAt); list.innerHTML = ''; filteredTransactions.forEach(data => { const itemDiv = document.createElement('div'); if (data.type === 'deposit') { itemDiv.className = 'notification-item status-deposit'; const descriptionText = data.description || 'Balansınıza vəsait əlavə edildi.'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount positive">+${parseFloat(data.amount).toFixed(2)} AZN</span><span class="notification-item-status">Mədaxil</span></div><div class="notification-item-body"><span>${descriptionText}</span></div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } else { const reqData = data.requestData; let statusText, statusClass; switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; case 'pending': statusText = 'Gözləmədə'; statusClass = 'status-pending'; break; case 'cancelled': statusText = 'Ləğv Edildi'; statusClass = 'status-cancelled'; break; default: statusText = data.status; statusClass = 'status-cancelled'; } let actionHtml = ''; if (data.status === 'pending') { actionHtml = `<button class="cancel-btn" onclick="cancelWithdrawal('${data.key}', ${reqData.amount})">Ləğv Et</button>`; } itemDiv.className = `notification-item ${statusClass}`; const maskedCardNumber = reqData.cardNumber ? '**** ' + reqData.cardNumber.slice(-4) : 'Kart məlumatı yoxdur'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount negative">-${parseFloat(reqData.amount).toFixed(2)} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body"><span>Kart: ${maskedCardNumber}</span> ${actionHtml}</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } list.appendChild(itemDiv); }); }).catch(error => { list.innerHTML = '<p>Məlumatları yükləyərkən xəta baş verdi.</p>'; console.error("Error fetching data:", error); }); }; fetchAndDisplayHistory('all'); });
     document.getElementById('withdrawBtn').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Zəhmət olmasa, daxil olun.'); let currentBalance = 0; db.ref('balances/' + user.uid).once('value', snapshot => { const balanceData = snapshot.val(); currentBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0; const amount = parseFloat(document.getElementById('withdrawAmount').value); const name = document.getElementById('userName').value.trim(); const surname = document.getElementById('userSurname').value.trim(); const card = document.getElementById('cardNumber').value.trim(); if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.'); if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.'); if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.'); const balanceRef = db.ref('balances/' + user.uid); balanceRef.transaction(currentData => { let currentBal = (currentData && currentData.amount) ? currentData.amount : 0; if (amount > currentBal) { return; } return { amount: currentBal - amount }; }, (error, committed, snapshot) => { if (error) { alert('Əməliyyat zamanı xəta baş verdi: ' + error.message); } else if (!committed) { alert('Balansınızda kifayət qədər vəsait yoxdur (əməliyyat ləğv edildi).'); } else { const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP }; db.ref('withdrawals').push(request).then(() => { alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.'); document.getElementById('notification-badge').style.display = 'flex'; document.getElementById('pulCekModal').style.display = 'none'; ['withdrawAmount', 'userName', 'userSurname', 'cardNumber'].forEach(id => document.getElementById(id).value = ''); }).catch(err => { alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message); balanceRef.transaction(currentData => ({ amount: ((currentData && currentData.amount) || 0) + amount })); }); } }); }); });
     function initializeSupportChat(user) { const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge'); if (messageListener) messageListener.off(); if (chatStateListener) chatStateListener.off(); chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } }; const chatRef = db.ref(`support_chats/${user.uid}`); chatStateListener = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; }); chatMessages.innerHTML = ''; const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50); messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; }); const sendMessage = () => { const text = chatInput.value.trim(); if (text === '') return; const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP }; db.ref(`support_chats/${user.uid}/messages`).push(messageData); db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true }); chatInput.value = ''; }; sendChatBtn.onclick = sendMessage; chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }; }
     document.getElementById('status-icon').addEventListener('click', () => { document.getElementById('statusModal').style.display = 'flex'; });
     function initializeSystemStatus() { const statusRef = db.ref('system_status'); const statusListContainer = document.getElementById('status-list'); statusRef.on('value', (snapshot) => { if (!snapshot.exists()) { statusListContainer.innerHTML = '<p>Sistem vəziyyəti haqqında məlumat yoxdur.</p>'; return; } const statuses = snapshot.val(); statusListContainer.innerHTML = ''; const sortedStatuses = Object.values(statuses).sort((a, b) => a.order - b.order); sortedStatuses.forEach(data => { const itemDiv = document.createElement('div'); itemDiv.className = 'status-item'; itemDiv.innerHTML = ` <div class="status-indicator ${data.state || 'paused'}"></div> <div class="status-text"> <span class="label">${data.label}</span> <span class="description">${data.status_text}</span> </div> `; statusListContainer.appendChild(itemDiv); }); }); }
     window.onload = function() { const preloader = document.getElementById('preloader'); const animatedBag = document.getElementById('animated-bag'); const finalBag = document.querySelector('.card .bag'); const contentWrapper = document.querySelector('.content-wrapper'); preloader.style.opacity = '0'; setTimeout(() => { animatedBag.style.opacity = '1'; animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)'; }, 200); setTimeout(() => { const finalBagRect = finalBag.getBoundingClientRect(); animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`; animatedBag.style.top = `${finalBagRect.top + finalBagRect.height / 2}px`; animatedBag.style.fontSize = getComputedStyle(finalBag).fontSize; }, 1000); setTimeout(() => { preloader.style.display = 'none'; animatedBag.style.display = 'none'; contentWrapper.style.opacity = '1'; contentWrapper.style.visibility = 'visible'; }, 2200); };
-      let countdownInterval, rainInterval;
+      let countdownInterval;
+    let rainTimeout;
+    let currentRainInterval = 500; // Başlanğıc interval (ms)
+    let currentRainSpeed = 3.5; // Başlanğıc sürət (saniyə)
+
     function listenForMoneyRain() {
       const moneyRainRef = db.ref('moneyRainEvent');
       moneyRainRef.on('value', (snapshot) => {
@@ -272,7 +275,7 @@ body{
       const banner = document.getElementById('countdown-banner');
       const timerEl = document.getElementById('countdown-timer');
       banner.style.display = 'block';
-      setTimeout(() => banner.classList.add('visible'), 50); // Animasiya üçün
+      setTimeout(() => banner.classList.add('visible'), 50);
       clearInterval(countdownInterval);
       countdownInterval = setInterval(() => {
         const remaining = Math.max(0, Math.round((startTime - Date.now()) / 1000));
@@ -288,12 +291,27 @@ body{
       clearInterval(countdownInterval);
     }
     function startRainAnimation(duration) {
-      if (rainInterval) return;
-      rainInterval = setInterval(createFallingCoin, 200); // Daha çox ikon üçün interval azaldıldı
+      if (rainTimeout) clearTimeout(rainTimeout); // Əvvəlki oyunu təmizlə
+      
+      // Arxa planı kilidlə
+      document.getElementById('game-overlay').style.display = 'block';
+
+      // Oyunun çətinlik parametrlərini sıfırla
+      currentRainInterval = 500; // ms (saniyədə 2 ikon)
+      currentRainSpeed = 3.5; // saniyə
+
+      // Dinamik oyun döngüsünü başlat
+      function gameLoop() {
+          createFallingCoin();
+          rainTimeout = setTimeout(gameLoop, currentRainInterval);
+      }
+      gameLoop();
     }
     function hideRainAnimation() {
-      clearInterval(rainInterval);
-      rainInterval = null;
+      // Arxa plan kilidini aç
+      document.getElementById('game-overlay').style.display = 'none';
+      clearTimeout(rainTimeout);
+      rainTimeout = null;
       document.querySelectorAll('.falling-coin').forEach(c => c.remove());
     }
     function createFallingCoin() {
@@ -301,33 +319,23 @@ body{
       coin.className = 'falling-coin';
       coin.textContent = ['🪙', '💰', '💵', '💎'][Math.floor(Math.random() * 4)];
       coin.style.left = `${Math.random() * 95}vw`;
-      // Sürət artırıldı
-      coin.style.animation = `fall-animation ${Math.random() * 2 + 2.5}s linear forwards`;
-      coin.onclick = (event) => collectCoin(event.currentTarget); // event.currentTarget istifadə etmək daha stabildir
+      // Dinamik sürət tətbiq edilir
+      coin.style.animation = `fall-animation ${Math.random() * 1 + currentRainSpeed}s linear forwards`;
+      coin.onclick = (event) => collectCoin(event.currentTarget);
       document.body.appendChild(coin);
-      setTimeout(() => coin.remove(), 5000);
+      setTimeout(() => coin.remove(), (currentRainSpeed + 1.5) * 1000);
     }
     function collectCoin(coinElement) {
       const user = auth.currentUser;
       if (!user || !coinElement) return;
-      coinElement.style.pointerEvents = 'none'; // Təkrar kliklənməsin
-      coinElement.style.opacity = '0'; // Orijinal ikonu dərhal gizlət
-      // Partlama effekti
-      const rect = coinElement.getBoundingClientRect();
-      for (let i = 0; i < 5; i++) {
-        const fragment = document.createElement('div');
-        fragment.innerHTML = '✨';
-        fragment.className = 'coin-fragment';
-        fragment.style.top = `${rect.top + rect.height / 2}px`;
-        fragment.style.left = `${rect.left + rect.width / 2}px`;
-        const angle = Math.random() * 360;
-        const distance = Math.random() * 50 + 20;
-        const x = Math.cos(angle * (Math.PI / 180)) * distance;
-        const y = Math.sin(angle * (Math.PI / 180)) * distance;
-        fragment.style.setProperty('--transform-end', `translate(${x}px, ${y}px) scale(0)`);
-        document.body.appendChild(fragment);
-        setTimeout(() => fragment.remove(), 600);
-      }
+      
+      // Animasiyasız, dərhal yox et
+      coinElement.remove();
+
+      // Hər klikdə oyunu sürətləndir və ikonları çoxalt
+      currentRainSpeed = Math.max(1.5, currentRainSpeed - 0.05); // Sürəti artır (minimum 1.5s)
+      currentRainInterval = Math.max(100, currentRainInterval - 5); // Intervalı azalt (minimum 100ms)
+
       const userScoreRef = db.ref(`moneyRainEvent/participants/${user.uid}`);
       userScoreRef.transaction((data) => {
         if (data === null) {
