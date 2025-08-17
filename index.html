@@ -92,38 +92,50 @@ body{
 .status-indicator.paused { background-color: var(--red); }
 .status-text .label { font-weight: bold; display: block; margin-bottom: 4px; }
 .status-text .description { font-size: 0.9rem; opacity: 0.8; }
-/* === BİLDİRİŞ VƏ OYUN HƏSSASLIĞI ÜÇÜN DƏYİŞİKLİKLƏR === */
+
+/* === BİLDİRİŞ VƏ OYUN ÜÇÜN YENİ DƏYİŞİKLİKLƏR === */
 #countdown-banner {
   display: none;
   position: fixed;
-  top: 20px; /* Biraz aşağı salındı */
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #f59e0b, #facc15); /* Gözəl gradient */
-  color: #1e293b; /* Tünd mətn */
-  padding: 12px 24px;
-  border-radius: 10px; /* Daha yumşaq kənarlar */
+  top: 20px;
+  right: 20px;
+  transform: translateX(120%); /* Başlanğıcda ekran xaricində */
+  background: rgba(15, 12, 41, 0.8); /* Tünd fon */
+  backdrop-filter: blur(5px);
+  color: #f59e0b; /* Narıncı mətn */
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
   z-index: 10005;
-  font-weight: 600; /* Qalın şrift */
-  font-size: 1.05rem;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3); /* Kölgə effekti */
-  text-align: center;
-  width: min(90%, 400px); /* Genişlik əlavə edildi */
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  width: auto;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* Səlis gəliş animasiyası */
+}
+#countdown-banner.visible {
+  transform: translateX(0); /* Ekrana daxil olma */
 }
 .falling-coin {
   position: fixed;
   top: -60px;
-  font-size: 3.5rem; /* Ölçü böyüdüldü */
+  font-size: 2.2rem; /* Ölçü kiçildildi */
   user-select: none;
   pointer-events: auto;
   cursor: pointer;
   z-index: 10003;
-  transition: transform 0.1s ease;
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-  padding: 10px; /* HƏSSASLIQ: Klik sahəsi böyüdüldü */
+  padding: 8px; /* Klik sahəsi */
 }
-.falling-coin:hover {
-  transform: scale(1.2) rotateZ(20deg);
+.coin-fragment { /* YENİ: Partlama effekti üçün zərrəciklər */
+  position: absolute;
+  font-size: 0.5rem;
+  color: #facc15;
+  pointer-events: none;
+  animation: shatter-effect 0.6s ease-out forwards;
+}
+@keyframes shatter-effect { /* YENİ: Partlama animasiyası */
+  from { transform: translate(0, 0) scale(1); opacity: 1; }
+  to { transform: var(--transform-end); opacity: 0; }
 }
 @keyframes fall-animation {
   from { transform: translateY(0) rotateZ(0deg); opacity: 1; }
@@ -143,7 +155,6 @@ body{
 </style>
 </head>
 <body>
-
 <div id="preloader"></div>
 <div id="animated-bag">💰</div>
 <div id="countdown-banner">Para Yağışı <span id="countdown-timer">30</span> saniyəyə başlayır!</div>
@@ -261,6 +272,7 @@ body{
       const banner = document.getElementById('countdown-banner');
       const timerEl = document.getElementById('countdown-timer');
       banner.style.display = 'block';
+      setTimeout(() => banner.classList.add('visible'), 50); // Animasiya üçün
       clearInterval(countdownInterval);
       countdownInterval = setInterval(() => {
         const remaining = Math.max(0, Math.round((startTime - Date.now()) / 1000));
@@ -271,12 +283,13 @@ body{
       }, 1000);
     }
     function hideCountdown() {
+      const banner = document.getElementById('countdown-banner');
+      banner.classList.remove('visible');
       clearInterval(countdownInterval);
-      document.getElementById('countdown-banner').style.display = 'none';
     }
     function startRainAnimation(duration) {
       if (rainInterval) return;
-      rainInterval = setInterval(createFallingCoin, 250);
+      rainInterval = setInterval(createFallingCoin, 200); // Daha çox ikon üçün interval azaldıldı
     }
     function hideRainAnimation() {
       clearInterval(rainInterval);
@@ -288,26 +301,38 @@ body{
       coin.className = 'falling-coin';
       coin.textContent = ['🪙', '💰', '💵', '💎'][Math.floor(Math.random() * 4)];
       coin.style.left = `${Math.random() * 95}vw`;
-      coin.style.animation = `fall-animation ${Math.random() * 3 + 4}s linear forwards`;
-      coin.onclick = () => collectCoin(coin);
+      // Sürət artırıldı
+      coin.style.animation = `fall-animation ${Math.random() * 2 + 2.5}s linear forwards`;
+      coin.onclick = (event) => collectCoin(event.currentTarget); // event.currentTarget istifadə etmək daha stabildir
       document.body.appendChild(coin);
-      setTimeout(() => coin.remove(), 7000);
+      setTimeout(() => coin.remove(), 5000);
     }
     function collectCoin(coinElement) {
       const user = auth.currentUser;
       if (!user || !coinElement) return;
-      coinElement.style.pointerEvents = 'none';
-      coinElement.style.transition = 'opacity 0.3s, transform 0.3s';
-      coinElement.style.opacity = '0';
-      coinElement.style.transform = 'scale(1.5)';
+      coinElement.style.pointerEvents = 'none'; // Təkrar kliklənməsin
+      coinElement.style.opacity = '0'; // Orijinal ikonu dərhal gizlət
+      // Partlama effekti
+      const rect = coinElement.getBoundingClientRect();
+      for (let i = 0; i < 5; i++) {
+        const fragment = document.createElement('div');
+        fragment.innerHTML = '✨';
+        fragment.className = 'coin-fragment';
+        fragment.style.top = `${rect.top + rect.height / 2}px`;
+        fragment.style.left = `${rect.left + rect.width / 2}px`;
+        const angle = Math.random() * 360;
+        const distance = Math.random() * 50 + 20;
+        const x = Math.cos(angle * (Math.PI / 180)) * distance;
+        const y = Math.sin(angle * (Math.PI / 180)) * distance;
+        fragment.style.setProperty('--transform-end', `translate(${x}px, ${y}px) scale(0)`);
+        document.body.appendChild(fragment);
+        setTimeout(() => fragment.remove(), 600);
+      }
       const userScoreRef = db.ref(`moneyRainEvent/participants/${user.uid}`);
       userScoreRef.transaction((data) => {
         if (data === null) {
           return { score: 1, displayName: user.displayName };
         } else {
-          db.ref('moneyRainEvent/status').once('value', snapshot => {
-              if(snapshot.val() !== 'active') return;
-          });
           return { ...data, score: (data.score || 0) + 1 };
         }
       });
