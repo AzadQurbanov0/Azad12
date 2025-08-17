@@ -11,7 +11,7 @@
   h1,h2{margin:0 0 12px 0; text-align: center;}
   .section{background:var(--bg-section);border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-bottom:16px;}
   table{width:100%;border-collapse:collapse;margin-top:8px;}
-  th,td{padding:8px 10px;border:1px solid rgba(255,255,255,0.06);text-align:center;font-size:14px; word-break: break-word; vertical-align: middle;}
+  th,td{padding:8px 10px;border:1px solid rgba(255,2ess55,255,0.06);text-align:center;font-size:14px; word-break: break-word; vertical-align: middle;}
   th{background:rgba(255,255,255,0.03);}
   .no-data{opacity:0.7;text-align:center;padding:18px;color:var(--text-muted);}
   #login-container { text-align: center; padding-top: 20vh;}
@@ -234,26 +234,66 @@
     document.getElementById('userSearchInput').addEventListener('input', (e) => { const searchTerm = e.target.value.toLowerCase(); if (!searchTerm) { displayUsers(masterUserList); return; } const filteredList = masterUserList.filter(user => { const name = user.displayName ? user.displayName.toLowerCase() : ''; const email = user.email ? user.email.toLowerCase() : ''; return name.includes(searchTerm) || email.includes(searchTerm); }); displayUsers(filteredList); });
     
     function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
-    function showUserHistory(uid, displayName) {
+    async function showUserHistory(uid, displayName) {
         const modal = document.getElementById('historyModal');
         const title = document.getElementById('history-modal-title');
         const tableBody = document.getElementById('history-table-body');
         title.textContent = `'${displayName}' adlı istifadəçinin tarixçəsi`;
         tableBody.innerHTML = '<tr><td colspan="3" class="no-data">Yüklənir...</td></tr>';
         modal.style.display = 'flex';
-        const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(uid);
-        depositsRef.once('value', snapshot => {
-            if (!snapshot.exists()) { tableBody.innerHTML = '<tr><td colspan="3" class="no-data">Bu istifadəçi üçün heç bir balans artımı tapılmadı.</td></tr>'; return; }
-            tableBody.innerHTML = '';
+        try {
+            const [depositsSnapshot, withdrawalsSnapshot] = await Promise.all([
+                db.ref('deposits').orderByChild('uid').equalTo(uid).once('value'),
+                db.ref('withdrawals').orderByChild('uid').equalTo(uid).once('value')
+            ]);
             let historyItems = [];
-            snapshot.forEach(child => { historyItems.push(child.val()); });
-            historyItems.sort((a, b) => b.createdAt - a.createdAt);
+            if (depositsSnapshot.exists()) {
+                depositsSnapshot.forEach(child => {
+                    const deposit = child.val();
+                    historyItems.push({ type: 'deposit', amount: deposit.amount, status: 'Təsdiqləndi', date: deposit.createdAt });
+                });
+            }
+            if (withdrawalsSnapshot.exists()) {
+                withdrawalsSnapshot.forEach(child => {
+                    const withdrawal = child.val();
+                    historyItems.push({ type: 'withdrawal', amount: withdrawal.requestData.amount, status: withdrawal.status, date: withdrawal.createdAt });
+                });
+            }
+            if (historyItems.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3" class="no-data">Bu istifadəçi üçün heç bir maliyyə əməliyyatı tapılmadı.</td></tr>';
+                return;
+            }
+            historyItems.sort((a, b) => b.date - a.date);
+            tableBody.innerHTML = '';
             historyItems.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td data-label="Əməliyyat Növü">Balans Artımı</td><td data-label="Məbləğ (AZN)"><b style="color: var(--green);">+${parseFloat(item.amount).toFixed(2)} AZN</b></td><td data-label="Tarix">${new Date(item.createdAt).toLocaleString()}</td>`;
+                let typeText, amountHTML;
+                if (item.type === 'deposit') {
+                    typeText = 'Balans Artımı (Admin)';
+                    amountHTML = `<b style="color: var(--green);">+${parseFloat(item.amount).toFixed(2)} AZN</b>`;
+                } else {
+                    switch (item.status) {
+                        case 'approved':
+                            typeText = 'Pul Çıxarışı (Təsdiqləndi)';
+                            amountHTML = `<b style="color: var(--red);">- ${parseFloat(item.amount).toFixed(2)} AZN</b>`;
+                            break;
+                        case 'rejected':
+                            typeText = 'Pul Çıxarışı (Rədd Edildi)';
+                            amountHTML = `<b style="color: var(--text-muted); text-decoration: line-through;">- ${parseFloat(item.amount).toFixed(2)} AZN</b>`;
+                            break;
+                        default:
+                            typeText = 'Pul Çıxarışı (Gözləmədə)';
+                            amountHTML = `<b style="color: var(--yellow);">- ${parseFloat(item.amount).toFixed(2)} AZN</b>`;
+                            break;
+                    }
+                }
+                tr.innerHTML = `<td data-label="Əməliyyat Növü">${typeText}</td><td data-label="Məbləğ (AZN)">${amountHTML}</td><td data-label="Tarix">${new Date(item.date).toLocaleString()}</td>`;
                 tableBody.appendChild(tr);
             });
-        });
+        } catch (error) {
+            console.error("Tarixçə yüklənərkən xəta baş verdi:", error);
+            tableBody.innerHTML = '<tr><td colspan="3" class="no-data">Məlumatları yükləmək mümkün olmadı.</td></tr>';
+        }
         window.onclick = function(event) { if (event.target == modal) { closeHistoryModal(); } }
     }
 </script>
