@@ -1,183 +1,210 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Para Çuvalı</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Panel</title>
 <style>
-:root{
-  --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e; --card:rgba(255,255,255,0.06);
-  --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e; --red:#dc2626;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html{height:100%;}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial,'Apple Color Emoji','Segoe UI Emoji';
-  color:var(--text); background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
-  display: flex; align-items: center; justify-content: center;
-  min-height: 100vh; overflow:hidden;
-}
-.wrap{display:grid;place-items:center;gap:12px;text-align:center;padding:20px;}
-.user-info{font-size:1rem;font-weight:600;opacity:.9;margin-bottom:6px;}
-.card{
-  position:relative; width:min(60vw,320px); aspect-ratio:1/1; display:grid; place-items:center;
-  background: radial-gradient(60% 60% at 50% 30%,var(--glass),transparent 70%),var(--card);
-  border:1px solid rgba(255,255,255,0.14); border-radius:24px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
-  backdrop-filter:blur(6px);
-}
-.bag{font-size:clamp(5rem,18vw,12rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
-.balance{margin-top:10px;display:grid;place-items:center;font-weight:700;letter-spacing:1px;text-shadow:0 2px 5px rgba(0,0,0,0.5);}
-.balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem);opacity:.9;margin-right:4px;}
-.balance .value{font-size:clamp(1.5rem,5vw,2.5rem);line-height:1;}
-.google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600;}
-.action-buttons button { position: fixed; right: 20px; padding: 8px 14px; font-size: 0.9rem; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-#payBtn { top: 20px; background: #22c55e; }
-#cekBtn { top: 58px; background: #2563eb; }
-#pulCekBtn { top: 96px; background: #f59e0b; }
-#notification-bell { position: fixed; top: 20px; left: 20px; font-size: 28px; cursor: pointer; user-select: none; z-index: 10000; }
-#notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
-.modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
-.modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color:white; width: min(90vw, 350px); max-height: 90vh; display: flex; flex-direction: column; }
-.modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: #FFFFFF; color: #212529; font-size: 1rem; }
-.modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
-#announcements-container { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
-.announcement-item { background: rgba(14, 165, 233, 0.1); border-left: 4px solid #0ea5e9; padding: 12px; border-radius: 6px; text-align: left; margin-bottom: 10px; }
-.announcement-text { font-size: 0.9rem; margin: 0; white-space: pre-wrap; word-break: break-word; }
-.announcement-meta { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
-#notifications-list { max-height: 350px; overflow-y: auto; text-align: left; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
-.notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
-.notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.notification-item-amount { font-size: 1.1rem; font-weight: bold; }
-.notification-item-amount.positive { color: #22c55e; } .notification-item-amount.negative { color: #fca5a5; }
-.notification-item-status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; font-size: 0.8rem;}
-.notification-item-body { font-size: 0.85rem; opacity: 0.8; display: flex; justify-content: space-between; align-items: center; }
-.notification-item-footer { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
-.status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
-.status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
-.status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
-.status-cancelled { border-left-color: #6b7280; } .status-cancelled .notification-item-status { background-color: #6b7280; }
-.status-deposit { border-left-color: #3b82f6; } .status-deposit .notification-item-status { background-color: #3b82f6; }
-.cancel-btn { background: var(--red); color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
-#support-widget { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
-#chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
-#chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
-#chat-window { position: absolute; bottom: 80px; right: 0; width: 320px; max-width: 90vw; height: 400px; background: var(--bg3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: none; flex-direction: column; overflow: hidden; }
-#chat-header { padding: 10px; background: rgba(0,0,0,0.2); font-weight: bold; text-align: center; }
-#chat-messages { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-.message { max-width: 80%; padding: 8px 12px; border-radius: 10px; line-height: 1.4; word-break: break-word; }
-.message.user { background: #2563eb; color: white; align-self: flex-end; }
-.message.admin { background: #4b5563; color: white; align-self: flex-start; }
-#chat-input-area { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
-#chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
-#send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
-#preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out; }
-#animated-bag { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35)); }
-.content-wrapper { opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; }
-.balance-update-text { animation: text-flash 0.7s ease-in-out; }
-@keyframes text-flash { 0% { color: var(--text); transform: scale(1); } 50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); } 100% { color: var(--text); transform: scale(1); } }
-.coin { position: fixed; top: -50px; font-size: 2rem; z-index: 9998; pointer-events: none; animation-name: fall-and-fade; animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); animation-fill-mode: forwards; }
-@keyframes fall-and-fade { from { transform: translateY(0) rotateZ(0deg); opacity: 1; } to { transform: translateY(65vh) rotateZ(360deg); opacity: 0; } }
-.filter-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
-.filter-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s ease; }
-.filter-btn:hover { background: rgba(255,255,255,0.2); }
-.filter-btn.active { background: var(--accent); color: var(--bg1); font-weight: bold; border-color: var(--accent); }
-#status-icon { position: fixed; top: 20px; left: 60px; font-size: 28px; cursor: pointer; user-select: none; z-index: 10000; }
-#status-list { text-align: left; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-.status-item { display: flex; align-items: center; gap: 12px; }
-.status-indicator { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-.status-indicator.active { background-color: var(--accent); }
-.status-indicator.delayed { background-color: #f59e0b; }
-.status-indicator.paused { background-color: var(--red); }
-.status-text .label { font-weight: bold; display: block; margin-bottom: 4px; }
-.status-text .description { font-size: 0.9rem; opacity: 0.8; }
-#countdown-banner {
-  display: none;
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  transform: translateX(120%);
-  background: rgba(15, 12, 41, 0.8);
-  backdrop-filter: blur(5px);
-  color: #f59e0b;
-  padding: 12px 20px;
-  border-radius: 10px;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  z-index: 10005;
-  font-weight: 600;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  width: auto;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-#countdown-banner.visible {
-  transform: translateX(0);
-}
-.falling-coin {
-  position: fixed;
-  top: -60px;
-  font-size: 2.2rem; /* Ölçü kiçildildi */
-  user-select: none;
-  pointer-events: auto;
-  cursor: pointer;
-  z-index: 10003;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-  padding: 5px; /* Klik sahəsi optimallaşdırıldı */
-}
-@keyframes fall-animation {
-  from { transform: translateY(0) rotateZ(0deg); opacity: 1; }
-  to { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
-}
-#leaderboardModal .modalContent ul {
-    list-style: none; padding: 0; width: 100%; text-align: left;
-    margin-top: 15px; max-height: 400px; overflow-y: auto;
-}
-#leaderboardModal .modalContent li {
-    background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px;
-    margin-bottom: 8px; font-size: 0.95rem; font-weight: 500;
-}
-#leaderboardModal .modalContent li:first-child {
-    background: #f59e0b; color: var(--bg1); font-weight: bold;
-}
-/* YENİ: Oyun zamanı arxa planı kilidləyən örtük */
-#game-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 10002; /* İkonlardan aşağıda, düymələrdən yuxarıda */
-    display: none;
-}
+  :root { --bg-main: #0f1724; --bg-section: #0b1220; --border-color: #1f2937; --text-main: #e6eef8; --text-muted: #9fb3d9; --green: #16a34a; --red: #dc2626; --blue: #2563eb; --yellow: #f59e0b; --purple: #4f46e5; }
+  body{margin:0;padding:20px;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg-main);color:var(--text-main); display: flex; align-items: center; justify-content: center; min-height: 100vh;}
+  .container{max-width:1300px;margin:0 auto; width: 100%;}
+  h1,h2{margin:0 0 12px 0; text-align: center;}
+  .section{background:var(--bg-section);border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;margin-top:8px;}
+  th,td{padding:8px 10px;border:1px solid rgba(255,255,255,0.06);text-align:center;font-size:14px; word-break: break-word; vertical-align: middle;}
+  th{background:rgba(255,255,255,0.03);}
+  .no-data{opacity:0.7;text-align:center;padding:18px;color:var(--text-muted);}
+  #login-container { text-align: center; padding-top: 20vh;}
+  #adminLoginBtn { background: #4285F4; color: white; border: none; padding: 12px 24px; font-size: 1.1rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .btn { padding: 5px 10px; border-radius: 6px; border: none; cursor: pointer; color: white; font-size: 0.8rem; margin: 2px; }
+  .btn-green { background: var(--green); } .btn-red { background: var(--red); } .btn-blue { background: var(--blue); } .btn-dark-red { background: #991b1b; } .btn-purple { background: var(--purple); }
+  .status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; }
+  .status-pending { background-color: var(--yellow); } .status-approved { background-color: var(--green); } .status-rejected { background-color: var(--red); }
+  .actions-cell { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+  .balance-input { width: 80px; padding: 4px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: var(--text-main); }
+  #support-center { display: flex; gap: 16px; min-height: 60vh; max-height: 70vh; }
+  #chat-list-container { flex: 0 0 300px; background: rgba(0,0,0,0.1); border-radius: 8px; overflow-y: auto; padding: 8px; }
+  .chat-list-item { padding: 12px; border-radius: 6px; cursor: pointer; margin-bottom: 6px; border: 1px solid transparent; transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; }
+  .chat-list-item:hover { background: rgba(255,255,255,0.05); border-color: var(--border-color); }
+  .chat-list-item.active { background: var(--blue); color: white; }
+  .new-message-indicator { width: 10px; height: 10px; background-color: var(--green); border-radius: 50%; }
+  #chat-view-container { flex-grow: 1; border-radius: 8px; background: rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+  #chat-view-header { padding: 12px; background: rgba(0,0,0,0.2); font-weight: bold; text-align: center; border-bottom: 1px solid var(--border-color); }
+  #messages-container { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .message { max-width: 70%; padding: 8px 12px; border-radius: 10px; line-height: 1.4; word-break: break-word; }
+  .message.user { background: #374151; color: white; align-self: flex-start; }
+  .message.admin { background: var(--purple); color: white; align-self: flex-end; }
+  #reply-area { display: flex; padding: 10px; border-top: 1px solid var(--border-color); }
+  #reply-input { flex-grow: 1; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 8px; color: white; }
+  #send-reply-btn { background: var(--purple); color: white; border: none; padding: 0 16px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
+  #chat-placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); }
+  #userSearchInput { width: 100%; padding: 8px 12px; margin-bottom: 12px; background-color: #1e293b; border: 1px solid #334155; border-radius: 6px; color: var(--text-main); font-size: 1rem; box-sizing: border-box; }
+  #dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .stat-card { background: var(--bg-section); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-value { font-size: 2rem; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+  .stat-label { font-size: 0.9rem; color: var(--text-muted); }
+  #announcement-textarea { width: 100%; box-sizing: border-box; background: #1e293b; border: 1px solid #334155; color: var(--text-main); padding: 10px; border-radius: 6px; min-height: 80px; margin-bottom: 10px; }
+  #past-announcements-list { max-height: 200px; overflow-y: auto; margin-top: 12px; }
+  .past-announcement-item { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .past-announcement-item p { margin: 0; white-space: pre-wrap; word-break: break-word; }
+  .past-announcement-item .meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
+  #statusForm { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  #statusForm .full-width { grid-column: 1 / -1; }
+  #statusForm label { font-size: 0.9rem; margin-bottom: 5px; display: block; color: var(--text-muted); }
+  #statusForm input, #statusForm select, #statusForm textarea { width: 100%; box-sizing: border-box; background-color: #1e293b; border: 1px solid #334155; border-radius: 6px; color: var(--text-main); font-size: 1rem; padding: 8px; }
+  .form-buttons { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-end; }
+  .status-indicator-admin { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+  .indicator-active { background-color: var(--green); } .indicator-delayed { background-color: var(--yellow); } .indicator-paused { background-color: var(--red); }
+  #moneyRainControls { display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
+  .rain-input-group { display: flex; flex-direction: column; gap: 5px; }
+  .rain-input-group label { font-size: 0.85rem; color: var(--text-muted); }
+  .rain-input-group input { background-color: #1e293b; border: 1px solid #334155; border-radius: 6px; color: var(--text-main); font-size: 1rem; padding: 8px; max-width: 120px; }
+  .status-display { padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center; }
+  .status-display.idle { background: #4b5563; }
+  .status-display.pending { background: var(--yellow); color: var(--bg-main); }
+  .status-display.active { background: var(--green); }
+  /* Modal Styles */
+  .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
+  .modal-content { background-color: var(--bg-section); margin: 10% auto; padding: 20px; border: 1px solid var(--border-color); border-radius: 10px; width: 80%; max-width: 800px; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
+  .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+  .close-btn:hover, .close-btn:focus { color: white; text-decoration: none; }
+  #historyModalContent { max-height: 60vh; overflow-y: auto; }
+  .history-amount-plus { color: var(--green); font-weight: bold; }
+  .history-amount-minus { color: var(--red); font-weight: bold; }
+  @media screen and (max-width: 768px) {
+    body { padding: 10px; }
+    #support-center, #statusForm { flex-direction: column; display: flex; }
+    #chat-list-container { flex-basis: 200px; }
+    table, thead, tbody, th, td, tr { display: block; }
+    thead tr { position: absolute; top: -9999px; left: -9999px; }
+    tr { margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+    td { border: none; border-bottom: 1px solid rgba(255,255,255,0.06); position: relative; padding-left: 50%; text-align: right; min-height: 30px; display: flex; align-items: center; justify-content: flex-end; }
+    td:last-child { border-bottom: 0; }
+    td:before { content: attr(data-label); position: absolute; left: 10px; width: 45%; padding-right: 10px; white-space: nowrap; text-align: left; font-weight: bold; opacity: 0.8; }
+    .actions-cell { flex-direction: row; align-items: center; }
+    .balance-input, .btn { width: auto; box-sizing: border-box; padding: 5px 10px; margin: 2px; }
+    #statusForm { grid-template-columns: 1fr; }
+    .modal-content { width: 95%; margin: 15% auto; }
+  }
 </style>
 </head>
 <body>
-<div id="preloader"></div>
-<div id="animated-bag">💰</div>
-<div id="game-overlay"></div>
-
-<div id="countdown-banner">Para Yağışı <span id="countdown-timer">30</span> saniyəyə başlayır!</div>
-
-<div class="content-wrapper">
-    <div id="notification-bell"><span>🔔</span><div id="notification-badge" style="display:none;">1</div></div>
-    <div id="status-icon"><span>ℹ️</span></div>
-    <div class="wrap"><div id="userInfo" class="user-info"></div><div class="card"><div class="bag">💰</div><div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div></div><button class="google-btn" id="loginBtn">🌐 Giriş</button></div>
-    <div class="action-buttons"><button id="payBtn">💲 YÜKLƏ</button><button id="cekBtn">📷 ÇEK</button><button id="pulCekBtn">🏦 ÇEK</button></div>
-        <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Hesab Çıxarışı və Elanlar</h3><div class="filter-buttons"><button class="filter-btn" onclick="fetchAndDisplayHistory('7d')">Son 7 gün</button><button class="filter-btn" onclick="fetchAndDisplayHistory('month')">Bu Ay</button><button class="filter-btn active" onclick="fetchAndDisplayHistory('all')">Bütün Tarixçə</button></div><div id="announcements-container"></div><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="statusModal"><div class="modalContent"><h3>Sistem Vəziyyəti</h3><div id="status-list"><p>Məlumatlar yüklənir...</p></div><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="leaderboardModal">
-        <div class="modalContent">
-            <h3>Para Yağışı Nəticələri</h3>
-            <div id="leaderboard-list"></div>
-            <button class="close-modal-btn">Bağla</button>
+<div class="container">
+    <div id="login-container" style="display: none;"><h1>Admin Panel</h1><button id="adminLoginBtn">Google ilə Daxil Ol</button></div>
+    <div id="main-content" style="display: block;">
+      <h1 id="admin-welcome"></h1>
+      <div id="dashboard-grid" class="section">
+        <div class="stat-card"><div class="stat-value" id="stat-total-users">0</div><div class="stat-label">Ümumi İstifadəçi</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-total-balance">0.00</div><div class="stat-label">Sistemdəki Balans (AZN)</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-pending-reqs">0</div><div class="stat-label">Gözləyən Sorğu</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-pending-amount">0.00</div><div class="stat-label">Gözləyən Məbləğ (AZN)</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-unread-msgs">0</div><div class="stat-label">Oxunmamış Mesaj</div></div>
+      </div>
+      <div class="section">
+        <h2 style="margin:0;">Para Yağışı İdarəetməsi</h2>
+        <div id="moneyRainControls">
+            <div class="rain-input-group">
+                <label for="moneyRainAmount">Paylanacaq Məbləğ (AZN)</label>
+                <input type="number" id="moneyRainAmount" placeholder="Məs: 1.50" value="1">
+            </div>
+            <div class="rain-input-group">
+                <label for="moneyRainDuration">Oyun Müddəti (san)</label>
+                <input type="number" id="moneyRainDuration" placeholder="Məs: 30" value="30">
+            </div>
+            <div class="rain-input-group">
+                <label>Vəziyyət</label>
+                <div id="moneyRainStatus" class="status-display idle">Boş</div>
+            </div>
+            <button id="startMoneyRainBtn" class="btn btn-green">Yağışı Başlat</button>
+            <button id="stopMoneyRainBtn" class="btn btn-red">Dayandır</button>
+        </div>
+      </div>
+            <div class="section">
+        <h2 style="margin:0;">Sistem Vəziyyətini İdarə Et</h2>
+        <table id="statusManagementTable">
+            <thead><tr><th>Sıra</th><th>Başlıq</th><th>Açıqlama</th><th>Vəziyyət</th><th>Əməliyyatlar</th></tr></thead>
+            <tbody><tr class="no-data-row"><td colspan="5" class="no-data">Status yoxdur.</td></tr></tbody>
+        </table>
+        <form id="statusForm">
+            <input type="hidden" id="statusKey">
+            <div class="full-width">
+                <label for="statusLabel">Başlıq</label>
+                <input type="text" id="statusLabel" required>
+            </div>
+            <div class="full-width">
+                <label for="statusText">Açıqlama</label>
+                <textarea id="statusText" rows="2" required></textarea>
+            </div>
+            <div>
+                <label for="statusOrder">Sıra</label>
+                <input type="number" id="statusOrder" value="1" required>
+            </div>
+            <div>
+                <label for="statusState">Vəziyyət</label>
+                <select id="statusState" required>
+                    <option value="active">Aktiv (Yaşıl)</option>
+                    <option value="delayed">Gecikmə (Narıncı)</option>
+                    <option value="paused">Dayandırılıb (Qırmızı)</option>
+                </select>
+            </div>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-red" id="cancelStatusUpdate" style="display: none;">Ləğv et</button>
+                <button type="submit" class="btn btn-green" id="saveStatusBtn">Yeni Status Əlavə Et</button>
+            </div>
+        </form>
+            </div>
+                 <div class="section">
+        <h2 style="margin:0;">Ümumi Elan Göndər</h2>
+        <textarea id="announcement-textarea" placeholder="Bütün istifadəçilərə göndəriləcək mesajı bura yazın..."></textarea>
+        <button id="sendAnnouncementBtn" class="btn btn-purple">Elanı Göndər</button>
+        <div id="past-announcements-list"></div>
+      </div>
+      <div class="section">
+        <h2 style="margin:0;">Dəstək Mərkəzi</h2>
+        <div id="support-center">
+            <div id="chat-list-container"></div>
+            <div id="chat-view-container">
+                <div id="chat-placeholder">Söhbətə baxmaq üçün siyahıdan bir istifadəçi seçin</div>
+                <div id="chat-view" style="display:none; height:100%; flex-direction:column; display:flex;">
+                    <div id="chat-view-header"></div>
+                    <div id="messages-container"></div>
+                    <div id="reply-area">
+                        <input type="text" id="reply-input" placeholder="Cavabınızı yazın..."><button id="send-reply-btn">Göndər</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="section">
+        <h2 style="margin:0;">Pul Çıxarma Sorğuları</h2>
+        <table id="withdrawalsTable">
+            <thead><tr><th>Email</th><th>Ad/Soyad</th><th>Kart</th><th>Məbləğ</th><th>Tarix</th><th>Status</th><th>Əməliyyat</th></tr></thead>
+            <tbody><tr class="no-data-row"><td colspan="7" class="no-data">Heç bir sorğu yoxdur.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="section">
+          <h2 style="margin:0;">İstifadəçilər & Balans</h2>
+          <input type="search" id="userSearchInput" placeholder="Ada və ya emailə görə axtar...">
+          <table id="userTable">
+              <thead><tr><th>Ad</th><th>Email</th><th>Balans (AZN)</th><th>Əməliyyatlar</th></tr></thead>
+                <tbody><tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr></tbody>
+            </table>
         </div>
     </div>
-    <div id="support-widget"><div id="chat-window"><div id="chat-header">Dəstək</div><div id="chat-messages"></div><div id="chat-input-area"><input type="text" id="chat-input" placeholder="Mesajınızı yazın..."><button id="send-chat-btn"> göndər</button></div></div><button id="chat-toggle-btn"><span>💬</span><div id="chat-notification-badge" style="display:none;"></div></button></div>
 </div>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+
+<div id="historyModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="historyModalTitle">İstifadəçi Tarixçəsi</h2>
+      <span class="close-btn" id="closeHistoryModal">&times;</span>
+    </div>
+    <div id="historyModalContent">
+      </div>
+  </div>
+</div>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
 <script>
@@ -185,182 +212,369 @@ body{
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    let balanceListener = null, chatStateListener = null, messageListener = null;
-    function animateCountUp(element, start, end, duration) { let startTime = null; const step = (timestamp) => { if (!startTime) startTime = timestamp; const progress = Math.min((timestamp - startTime) / duration, 1); const current = start + progress * (end - start); element.textContent = current.toFixed(2); if (progress < 1) { window.requestAnimationFrame(step); } }; window.requestAnimationFrame(step); }
-    function createCoinShower() { const coinCount = 10; const body = document.body; for (let i = 0; i < coinCount; i++) { const coin = document.createElement('span'); coin.className = 'coin'; coin.innerHTML = '🪙'; coin.style.left = `${Math.random() * 95}vw`; coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`; coin.style.animationDelay = `${Math.random() * 0.4}s`; body.appendChild(coin); setTimeout(() => { coin.remove(); }, 2000); } }
-    auth.onAuthStateChanged(user => {
-        const supportWidget = document.getElementById('support-widget');
-        let lastKnownBalance = 0;
-        if (user) {
-            document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
-            db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
-            if (balanceListener) balanceListener.off();
-            balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
-                const balanceData = snapshot.val();
-                let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
-                const balanceElement = document.getElementById('balance');
-                if (newBalance > lastKnownBalance && lastKnownBalance !== 0) {
-                    createCoinShower();
-                    balanceElement.classList.add('balance-update-text');
-                    balanceElement.addEventListener('animationend', () => { balanceElement.classList.remove('balance-update-text'); }, { once: true });
-                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200);
-                } else {
-                    balanceElement.textContent = newBalance.toFixed(2);
-                }
-                lastKnownBalance = newBalance;
+    let currentChatUid = null;
+    let messagesListener = null;
+    let masterUserList = [];
+    let historyListener = null; // Listener-i izləmək üçün
+
+    window.onload = function() {
+        document.getElementById('admin-welcome').textContent = `Xoş gəldiniz, Admin`;
+        loadAllData();
+    };
+
+    function loadAllData() {
+        loadDashboardStats();
+        loadSystemStatuses();
+        loadAnnouncements();
+        loadSupportChats();
+        loadWithdrawals();
+        loadUsersAndBalances();
+        initializeMoneyRainPanel();
+    }
+
+    document.getElementById('sendAnnouncementBtn').addEventListener('click', sendAnnouncement);
+
+    function sendAnnouncement() {
+        const textArea = document.getElementById('announcement-textarea');
+        const text = textArea.value.trim();
+        if (!text) { alert("Elan mətni boş ola bilməz."); return; }
+        const announcementData = { text: text, senderName: "Admin", createdAt: firebase.database.ServerValue.TIMESTAMP };
+        db.ref('announcements').push(announcementData)
+            .then(() => { alert("Elan bütün istifadəçilərə uğurla göndərildi."); textArea.value = ''; })
+            .catch(error => { alert("Elan göndərilərkən xəta baş verdi: " + error.message); });
+    }
+
+    function loadAnnouncements() {
+        const listContainer = document.getElementById('past-announcements-list');
+        db.ref('announcements').orderByChild('createdAt').limitToLast(10).on('value', snapshot => {
+            listContainer.innerHTML = '';
+            if(!snapshot.exists()) { listContainer.innerHTML = '<p class="no-data">Hələ heç bir elan göndərilməyib.</p>'; return; }
+            let announcements = [];
+            snapshot.forEach(child => { announcements.push({key: child.key, ...child.val()}); });
+            announcements.reverse().forEach(ann => {
+                const item = document.createElement('div');
+                item.className = 'past-announcement-item';
+                item.innerHTML = `<div><p>${ann.text}</p><div class="meta">${ann.senderName} - ${new Date(ann.createdAt).toLocaleString()}</div></div><button class="btn btn-dark-red" onclick="deleteAnnouncement('${ann.key}')">Sil</button>`;
+                listContainer.appendChild(item);
             });
-            supportWidget.style.display = 'block';
-            initializeSupportChat(user);
-            initializeSystemStatus();
-            listenForMoneyRain();
-        } else {
-            document.getElementById('userInfo').textContent = '';
-            document.getElementById('balance').textContent = '0.00';
-            lastKnownBalance = 0;
-            if (balanceListener) balanceListener.off();
-            if (chatStateListener) chatStateListener.off();
-            if (messageListener) messageListener.off();
-            supportWidget.style.display = 'none';
+        });
+    }
+      function deleteAnnouncement(key) { if(confirm("Bu elanı silmək istədiyinizə əminsiniz?")){ db.ref('announcements/' + key).remove(); } }
+
+    function loadDashboardStats() {
+        db.ref('users').on('value', snapshot => { document.getElementById('stat-total-users').textContent = snapshot.exists() ? snapshot.numChildren() : 0; });
+        db.ref('balances').on('value', snapshot => { let totalBalance = 0; if (snapshot.exists()) { snapshot.forEach(child => { totalBalance += child.val().amount || 0; }); } document.getElementById('stat-total-balance').textContent = totalBalance.toFixed(2); });
+        db.ref('withdrawals').on('value', snapshot => { let pendingCount = 0; let pendingAmount = 0; if (snapshot.exists()) { snapshot.forEach(child => { const req = child.val(); if (req.status === 'pending' && !req.isArchived) { pendingCount++; pendingAmount += req.requestData.amount || 0; } }); } document.getElementById('stat-pending-reqs').textContent = pendingCount; document.getElementById('stat-pending-amount').textContent = pendingAmount.toFixed(2); });
+        db.ref('support_chats').on('value', snapshot => { let unreadCount = 0; if (snapshot.exists()) { snapshot.forEach(child => { if (child.val().new_message_for_admin) { unreadCount++; } }); } document.getElementById('stat-unread-msgs').textContent = unreadCount; });
+    }
+
+    function logBalanceChange(uid, amount, type, description) {
+        const historyRef = db.ref('balance_history/' + uid).push();
+        return historyRef.set({ amount, type, description, createdAt: firebase.database.ServerValue.TIMESTAMP });
+    }
+
+    async function updateRequestStatus(key, newStatus) {
+        if (!confirm(`Bu sorğunu "${newStatus === 'approved' ? 'Onayla' : 'Rədd et'}" statusuna dəyişmək istəyirsiniz?`)) return;
+        const withdrawalRef = db.ref('withdrawals/' + key);
+        try {
+            const snapshot = await withdrawalRef.once('value');
+            const requestData = snapshot.val();
+            if (!requestData || (requestData.status !== 'pending' && newStatus !== 'approved' && newStatus !== 'rejected')) {
+                alert("Bu sorğu artıq emal edilib və ya tapılmadı.");
+                if(requestData.status !== 'pending') withdrawalRef.update({ status: newStatus });
+                return;
+            }
+            const amount = requestData.requestData.amount;
+            const userId = requestData.uid;
+            if (newStatus === 'approved') {
+                const updates = {};
+                updates['/withdrawals/' + key + '/status'] = 'approved';
+                updates['/balances/' + userId + '/amount'] = firebase.database.ServerValue.increment(-amount);
+                await db.ref().update(updates);
+                await logBalanceChange(userId, -amount, 'withdrawal_approved', `Çıxarış sorğusu (#${key.slice(-6)}) təsdiqləndi.`);
+                alert("Sorğu təsdiqləndi və məbləğ balansdan çıxıldı.");
+            } else if (newStatus === 'rejected') {
+                await db.ref('balances/' + userId + '/amount').set(firebase.database.ServerValue.increment(amount));
+                await withdrawalRef.update({ status: newStatus });
+                await logBalanceChange(userId, amount, 'withdrawal_rejected', `Çıxarış sorğusu (#${key.slice(-6)}) ləğv edildi.`);
+                alert(`Sorğu rədd edildi və ${amount.toFixed(2)} AZN istifadəçinin balansına geri qaytarıldı.`);
+            }
+        } catch (error) {
+            alert("Sorğu emal edilərkən xəta baş verdi: " + error.message);
         }
+    }
+
+    function loadSupportChats() { const chatListContainer = document.getElementById('chat-list-container'); const chatRef = db.ref('support_chats').orderByChild('last_updated'); chatRef.on('value', snapshot => { chatListContainer.innerHTML = ''; if (!snapshot.exists()) { chatListContainer.innerHTML = '<p class="no-data">Heç bir söhbət yoxdur.</p>'; return; } let chats = []; snapshot.forEach(child => { chats.push({ uid: child.key, ...child.val() }); }); chats.reverse().forEach(chatData => { const item = document.createElement('div'); item.className = 'chat-list-item'; if (chatData.uid === currentChatUid) { item.classList.add('active'); } item.innerHTML = `<span>${chatData.user_email || 'Naməlum'}</span> ${chatData.new_message_for_admin ? '<div class="new-message-indicator"></div>' : ''}`; item.onclick = () => openChat(chatData.uid, chatData.user_email); chatListContainer.appendChild(item); }); }); document.getElementById('send-reply-btn').onclick = sendAdminReply; document.getElementById('reply-input').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAdminReply(); } }; }
+      function openChat(uid, userEmail) { currentChatUid = uid; document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active')); const activeItem = [...document.querySelectorAll('.chat-list-item')].find(el => el.textContent.includes(userEmail)); if (activeItem) activeItem.classList.add('active'); document.getElementById('chat-placeholder').style.display = 'none'; document.getElementById('chat-view').style.display = 'flex'; document.getElementById('chat-view-header').textContent = `Söhbət: ${userEmail}`; const messagesContainer = document.getElementById('messages-container'); messagesContainer.innerHTML = ''; if (messagesListener) { messagesListener.off(); } db.ref(`support_chats/${uid}`).update({ new_message_for_admin: false }); const messagesRef = db.ref(`support_chats/${uid}/messages`).limitToLast(100); messagesListener = messagesRef.on('child_added', msgSnapshot => { const msg = msgSnapshot.val(); const msgDiv = document.createElement('div'); msgDiv.className = `message ${msg.sender === 'admin' ? 'admin' : 'user'}`; msgDiv.textContent = msg.text; messagesContainer.appendChild(msgDiv); messagesContainer.scrollTop = messagesContainer.scrollHeight; }); }
+    function sendAdminReply() { const input = document.getElementById('reply-input'); const text = input.value.trim(); if (text === '' || !currentChatUid) return; const messageData = { text: text, sender: 'admin', timestamp: firebase.database.ServerValue.TIMESTAMP }; db.ref(`support_chats/${currentChatUid}/messages`).push(messageData); db.ref(`support_chats/${currentChatUid}`).update({ last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: false, new_message_for_user_count: firebase.database.ServerValue.increment(1) }); input.value = ''; }
+    function archiveRequest(key) { if (confirm("Bu sorğunu arxivləşdirmək istəyirsiniz?")) { db.ref('withdrawals/' + key).update({ isArchived: true }); } }
+    function deleteUser(uid, email) { if(confirm(`'${email}' istifadəçisini və bütün məlumatlarını sil? Bu əməliyyat geri qaytarılmazdır.`)) { db.ref('users/' + uid).remove(); db.ref('balances/' + uid).remove(); db.ref('balance_history/' + uid).remove(); }}
+    
+    async function applyBalanceChange(uid) {
+        const inputElement = document.getElementById(`balance-input-${uid}`);
+        const inputValue = inputElement.value.trim().replace(',', '.');
+        if (inputValue === '') return alert("Zəhmət olmasa, bir dəyər daxil edin.");
+        const changeValue = parseFloat(inputValue);
+        if (isNaN(changeValue)) return alert("Zəhmət olmasa, düzgün rəqəm daxil edin.");
+        try {
+            const balanceSnapshot = await db.ref('balances/' + uid).once('value');
+            const currentBalance = balanceSnapshot.exists() && balanceSnapshot.val().amount ? parseFloat(balanceSnapshot.val().amount) : 0;
+            let amountChanged = 0;
+            let description = '';
+            let finalBalance = 0;
+            if (inputValue.startsWith('+')) {
+                amountChanged = changeValue;
+                description = 'Admin tərəfindən balans artırıldı.';
+                finalBalance = currentBalance + amountChanged;
+            } else if (inputValue.startsWith('-')) {
+                amountChanged = changeValue; // Already negative
+                description = 'Admin tərəfindən balans azaldıldı.';
+                finalBalance = currentBalance + amountChanged;
+            } else {
+                amountChanged = changeValue - currentBalance;
+                description = 'Admin tərəfindən balans yeniləndi.';
+                finalBalance = changeValue;
+            }
+            if(finalBalance < 0) finalBalance = 0;
+            if (confirm(`İstifadəçinin balansını ${finalBalance.toFixed(2)} AZN olaraq təyin etmək istəyirsiniz? (Dəyişiklik: ${amountChanged.toFixed(2)} AZN)`)) {
+                await db.ref('balances/' + uid).update({ amount: finalBalance });
+                await logBalanceChange(uid, amountChanged, 'admin_manual_change', description);
+                alert("Balans uğurla yeniləndi və tarixçəyə qeyd edildi!");
+                inputElement.value = '';
+            }
+        } catch (error) {
+            alert("Balans yenilənərkən xəta baş verdi: " + error.message);
+        }
+    }
+
+    function showUserHistory(uid, email) {
+        const modal = document.getElementById('historyModal');
+        const title = document.getElementById('historyModalTitle');
+        const content = document.getElementById('historyModalContent');
+        const closeBtn = document.getElementById('closeHistoryModal');
+        title.textContent = `${email} - Balans Tarixçəsi`;
+        content.innerHTML = '<p class="no-data">Tarixçə yüklənir...</p>';
+        modal.style.display = 'block';
+        closeBtn.onclick = () => { modal.style.display = 'none'; if(historyListener) historyListener.off(); };
+        window.onclick = (event) => { if (event.target == modal) { modal.style.display = 'none'; if(historyListener) historyListener.off(); }};
+        const historyRef = db.ref('balance_history/' + uid).orderByChild('createdAt');
+        historyListener = historyRef.on('value', snapshot => {
+            if (!snapshot.exists()) {
+                content.innerHTML = '<p class="no-data">Bu istifadəçi üçün heç bir əməliyyat tapılmadı.</p>';
+                return;
+            }
+            let history = [];
+            snapshot.forEach(child => history.push(child.val()));
+            history.reverse();
+            let tableHTML = '<table><thead><tr><th>Tarix</th><th>Məbləğ (AZN)</th><th>Açıqlama</th></tr></thead><tbody>';
+            history.forEach(item => {
+                const amountClass = item.amount > 0 ? 'history-amount-plus' : 'history-amount-minus';
+                const amountSign = item.amount > 0 ? '+' : '';
+                tableHTML += `<tr>
+                    <td data-label="Tarix">${new Date(item.createdAt).toLocaleString()}</td>
+                    <td data-label="Məbləğ"><span class="${amountClass}">${amountSign}${parseFloat(item.amount).toFixed(2)}</span></td>
+                    <td data-label="Açıqlama">${item.description}</td>
+                </tr>`;
+            });
+            tableHTML += '</tbody></table>';
+            content.innerHTML = tableHTML;
+        });
+    }
+
+    function loadWithdrawals() { const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody'); db.ref('withdrawals').on('value', (snapshot) => { if (!snapshot.exists()) { withdrawalsTableBody.innerHTML = '<tr class="no-data-row"><td colspan="7" class="no-data">Heç bir sorğu yoxdur.</td></tr>'; return; } withdrawalsTableBody.innerHTML = ''; let requests = []; snapshot.forEach(child => { requests.push({ key: child.key, ...child.val() }); }); const visibleRequests = requests.filter(req => !req.isArchived); visibleRequests.sort((a, b) => { const a_is_pending = a.status === 'pending'; const b_is_pending = b.status === 'pending'; if (a_is_pending && !b_is_pending) return -1; if (!a_is_pending && b_is_pending) return 1; return b.createdAt - a.createdAt; }); if (visibleRequests.length === 0) { withdrawalsTableBody.innerHTML = '<tr class="no-data-row"><td colspan="7" class="no-data">Göstəriləcək aktiv sorğu yoxdur.</td></tr>'; return; } visibleRequests.forEach(data => { const reqData = data.requestData; const tr = document.createElement('tr'); let statusText, statusClass; switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; default: statusText = 'Gözləmədə'; statusClass = 'status-pending'; } let actionButtons; if (data.status === 'pending') { actionButtons = `<button class="btn btn-green" onclick="updateRequestStatus('${data.key}', 'approved')">Onayla</button><button class="btn btn-red" onclick="updateRequestStatus('${data.key}', 'rejected')">Rədd et</button>`; } else { actionButtons = `<button class="btn btn-dark-red" onclick="archiveRequest('${data.key}')">Arxivlə</button>`; } tr.innerHTML = `<td data-label="Email">${data.userEmail}</td><td data-label="Ad/Soyad">${reqData.name} ${reqData.surname}</td><td data-label="Kart">${reqData.cardNumber}</td><td data-label="Məbləğ"><b>${parseFloat(reqData.amount).toFixed(2)} AZN</b></td><td data-label="Tarix">${new Date(data.createdAt).toLocaleString()}</td><td data-label="Status"><span class="status ${statusClass}">${statusText}</span></td><td data-label="Əməliyyat"><div class="actions-cell">${actionButtons}</div></td>`; withdrawalsTableBody.appendChild(tr); }); }); }
+    
+    function displayUsers(userList) {
+        const userTableBody = document.getElementById('userTable').querySelector('tbody');
+        userTableBody.innerHTML = '';
+        if (userList.length === 0) { userTableBody.innerHTML = '<tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi tapılmadı.</td></tr>'; return; }
+        userList.forEach(userData => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td data-label="Ad">${userData.displayName || 'Adsız'}</td><td data-label="Email">${userData.email}</td><td data-label="Balans (AZN)"><b>${parseFloat(userData.balance).toFixed(2)} AZN</b></td><td data-label="Əməliyyatlar"><div class="actions-cell"><input type="text" id="balance-input-${userData.uid}" placeholder="+50, -20, 200" class="balance-input"><button class="btn btn-blue" onclick="applyBalanceChange('${userData.uid}')">Tətbiq et</button><button class="btn btn-purple" onclick="showUserHistory('${userData.uid}', '${userData.email}')">Tarixçə</button><button class="btn btn-dark-red" onclick="deleteUser('${userData.uid}', '${userData.email}')">Sil</button></div></td>`;
+            userTableBody.appendChild(tr);
+        });
+    }
+
+    function loadUsersAndBalances() { const usersRef = db.ref('users'); const balancesRef = db.ref('balances'); usersRef.on('value', (userSnapshot) => { balancesRef.on('value', (balanceSnapshot) => { masterUserList = []; if (!userSnapshot.exists()) { displayUsers([]); return; } const allBalances = balanceSnapshot.val() || {}; userSnapshot.forEach(childSnapshot => { const uid = childSnapshot.key; const userData = childSnapshot.val(); const userBalance = allBalances[uid] && allBalances[uid].amount ? allBalances[uid].amount : 0; masterUserList.push({ uid: uid, displayName: userData.displayName, email: userData.email, balance: userBalance }); }); masterUserList.sort((a, b) => b.balance - a.balance); document.getElementById('userSearchInput').dispatchEvent(new Event('input')); }); }); }
+    document.getElementById('userSearchInput').addEventListener('input', (e) => { const searchTerm = e.target.value.toLowerCase(); if (!searchTerm) { displayUsers(masterUserList); return; } const filteredList = masterUserList.filter(user => { const name = user.displayName ? user.displayName.toLowerCase() : ''; const email = user.email ? user.email.toLowerCase() : ''; return name.includes(searchTerm) || email.includes(searchTerm); }); displayUsers(filteredList); });
+      function loadSystemStatuses() {
+        const tableBody = document.getElementById('statusManagementTable').querySelector('tbody');
+        const statusRef = db.ref('system_status');
+        statusRef.on('value', (snapshot) => {
+            tableBody.innerHTML = '';
+            if (!snapshot.exists()) {
+                tableBody.innerHTML = '<tr class="no-data-row"><td colspan="5" class="no-data">Status yoxdur.</td></tr>';
+                return;
+            }
+            let statuses = [];
+            snapshot.forEach(child => { statuses.push({ key: child.key, ...child.val() }); });
+            statuses.sort((a, b) => a.order - b.order);
+            statuses.forEach(data => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td data-label="Sıra">${data.order}</td>
+                    <td data-label="Başlıq">${data.label}</td>
+                    <td data-label="Açıqlama">${data.status_text}</td>
+                    <td data-label="Vəziyyət"><span class="status-indicator-admin indicator-${data.state}"></span> ${data.state}</td>
+                    <td data-label="Əməliyyatlar">
+                        <div class="actions-cell">
+                            <button class="btn btn-blue" onclick='editStatus("${data.key}", ${JSON.stringify(JSON.stringify(data))})'>Redaktə et</button>
+                            <button class="btn btn-red" onclick="deleteStatus('${data.key}')">Sil</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        });
+    }
+    function resetStatusForm() {
+        const form = document.getElementById('statusForm');
+        form.reset();
+        document.getElementById('statusKey').value = '';
+        document.getElementById('saveStatusBtn').textContent = 'Yeni Status Əlavə Et';
+        document.getElementById('cancelStatusUpdate').style.display = 'none';
+    }
+    function editStatus(key, jsonData) {
+        const data = JSON.parse(jsonData);
+        document.getElementById('statusKey').value = key;
+        document.getElementById('statusLabel').value = data.label;
+        document.getElementById('statusText').value = data.status_text;
+        document.getElementById('statusOrder').value = data.order;
+        document.getElementById('statusState').value = data.state;
+        document.getElementById('saveStatusBtn').textContent = 'Yenilə';
+        document.getElementById('cancelStatusUpdate').style.display = 'inline-block';
+        window.scrollTo(0, document.getElementById('statusForm').offsetTop);
+    }
+    function deleteStatus(key) {
+        if (confirm("Bu statusu silmək istədiyinizə əminsiniz?")) {
+            db.ref('system_status/' + key).remove()
+                .then(() => alert("Status uğurla silindi."))
+                .catch(error => alert("Xəta: " + error.message));
+        }
+    }
+    document.getElementById('statusForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const key = document.getElementById('statusKey').value;
+        const statusData = {
+            label: document.getElementById('statusLabel').value,
+            status_text: document.getElementById('statusText').value,
+            order: parseInt(document.getElementById('statusOrder').value),
+            state: document.getElementById('statusState').value
+        };
+        let promise;
+        if (key) {
+            promise = db.ref('system_status/' + key).update(statusData);
+        } else {
+            promise = db.ref('system_status').push(statusData);
+        }
+        promise.then(() => {
+            alert(key ? "Status uğurla yeniləndi." : "Yeni status uğurla əlavə edildi.");
+            resetStatusForm();
+        }).catch(error => alert("Xəta: " + error.message));
     });
-    function cancelWithdrawal(withdrawalId, amount) { const parsedAmount = parseFloat(amount); if (!confirm(`${parsedAmount.toFixed(2)} AZN məbləğindəki çıxarış sorğusunu ləğv etmək istədiyinizə əminsiniz? Məbləğ balansınıza geri qaytarılacaq.`)) { return; } const user = auth.currentUser; if (!user) return alert("Xəta: İstifadəçi tapılmadı."); const withdrawalRef = db.ref(`withdrawals/${withdrawalId}`); withdrawalRef.once('value').then(snapshot => { const request = snapshot.val(); if (!request || request.status !== 'pending') { alert("Bu sorğu artıq emal edilib və ləğv edilə bilməz."); document.getElementById('notification-bell').click(); return; } const updates = {}; updates[`/withdrawals/${withdrawalId}/status`] = 'cancelled'; updates[`/balances/${user.uid}/amount`] = firebase.database.ServerValue.increment(parsedAmount); db.ref().update(updates).then(() => { alert("Sorğunuz ləğv edildi və məbləğ balansınıza geri qaytarıldı."); const modal = document.getElementById('notificationsModal'); if (modal.style.display === 'flex') { modal.style.display = 'none'; setTimeout(() => document.getElementById('notification-bell').click(), 200); } }).catch(error => { alert("Xəta baş verdi: " + error.message); }); }); }
-    document.getElementById('loginBtn').addEventListener('click', () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(error => alert(error.message)); });
-    document.getElementById('payBtn').addEventListener('click', () => document.getElementById('payModal').style.display = 'flex');
-    document.getElementById('cekBtn').addEventListener('click', () => document.getElementById('cekModal').style.display = 'flex');
-    document.getElementById('pulCekBtn').addEventListener('click', () => document.getElementById('pulCekModal').style.display = 'flex');
-    document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
-    document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
-    let fetchAndDisplayHistory;
-    document.getElementById('notification-bell').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.'); const modal = document.getElementById('notificationsModal'); const list = document.getElementById('notifications-list'); const announcementsContainer = document.getElementById('announcements-container'); modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none'; announcementsContainer.innerHTML = ''; const announcementsRef = db.ref('announcements').limitToLast(5).once('value'); announcementsRef.then(announcementsSnapshot => { if (announcementsSnapshot.exists()) { let announcements = []; announcementsSnapshot.forEach(child => { announcements.push(child.val()); }); announcements.reverse().forEach(ann => { const annDiv = document.createElement('div'); annDiv.className = 'announcement-item'; annDiv.innerHTML = `<p class="announcement-text">${ann.text}</p><div class="announcement-meta">${new Date(ann.createdAt).toLocaleDateString()}</div>`; announcementsContainer.appendChild(annDiv); }); } }); fetchAndDisplayHistory = function(filterType = 'all') { list.innerHTML = '<p>Yüklənir...</p>'; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); const activeButton = [...document.querySelectorAll('.filter-btn')].find(btn => btn.getAttribute('onclick').includes(`'${filterType}'`)); if (activeButton) activeButton.classList.add('active'); let startTime = 0; const now = new Date(); if (filterType === '7d') { startTime = now.setDate(now.getDate() - 7); } else if (filterType === 'month') { startTime = new Date(now.getFullYear(), now.getMonth(), 1).getTime(); } const withdrawalsRef = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).once('value'); const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(user.uid).once('value'); Promise.all([withdrawalsRef, depositsRef]).then(([withdrawalsSnapshot, depositsSnapshot]) => { let allTransactions = []; withdrawalsSnapshot.forEach(child => { allTransactions.push({ key: child.key, ...child.val() }); }); depositsSnapshot.forEach(child => { allTransactions.push({ ...child.val(), type: 'deposit' }); }); const filteredTransactions = allTransactions.filter(item => item.createdAt >= startTime); if (filteredTransactions.length === 0) { list.innerHTML = '<p>Bu dövr üçün heç bir əməliyyat tapılmadı.</p>'; return; } filteredTransactions.sort((a, b) => b.createdAt - a.createdAt); list.innerHTML = ''; filteredTransactions.forEach(data => { const itemDiv = document.createElement('div'); if (data.type === 'deposit') { itemDiv.className = 'notification-item status-deposit'; const descriptionText = data.description || 'Balansınıza vəsait əlavə edildi.'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount positive">+${parseFloat(data.amount).toFixed(2)} AZN</span><span class="notification-item-status">Mədaxil</span></div><div class="notification-item-body"><span>${descriptionText}</span></div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } else { const reqData = data.requestData; let statusText, statusClass; switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; case 'pending': statusText = 'Gözləmədə'; statusClass = 'status-pending'; break; case 'cancelled': statusText = 'Ləğv Edildi'; statusClass = 'status-cancelled'; break; default: statusText = data.status; statusClass = 'status-cancelled'; } let actionHtml = ''; if (data.status === 'pending') { actionHtml = `<button class="cancel-btn" onclick="cancelWithdrawal('${data.key}', ${reqData.amount})">Ləğv Et</button>`; } itemDiv.className = `notification-item ${statusClass}`; const maskedCardNumber = reqData.cardNumber ? '**** ' + reqData.cardNumber.slice(-4) : 'Kart məlumatı yoxdur'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount negative">-${parseFloat(reqData.amount).toFixed(2)} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body"><span>Kart: ${maskedCardNumber}</span> ${actionHtml}</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } list.appendChild(itemDiv); }); }).catch(error => { list.innerHTML = '<p>Məlumatları yükləyərkən xəta baş verdi.</p>'; console.error("Error fetching data:", error); }); }; fetchAndDisplayHistory('all'); });
-    document.getElementById('withdrawBtn').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Zəhmət olmasa, daxil olun.'); let currentBalance = 0; db.ref('balances/' + user.uid).once('value', snapshot => { const balanceData = snapshot.val(); currentBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0; const amount = parseFloat(document.getElementById('withdrawAmount').value); const name = document.getElementById('userName').value.trim(); const surname = document.getElementById('userSurname').value.trim(); const card = document.getElementById('cardNumber').value.trim(); if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.'); if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.'); if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.'); const balanceRef = db.ref('balances/' + user.uid); balanceRef.transaction(currentData => { let currentBal = (currentData && currentData.amount) ? currentData.amount : 0; if (amount > currentBal) { return; } return { amount: currentBal - amount }; }, (error, committed, snapshot) => { if (error) { alert('Əməliyyat zamanı xəta baş verdi: ' + error.message); } else if (!committed) { alert('Balansınızda kifayət qədər vəsait yoxdur (əməliyyat ləğv edildi).'); } else { const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP }; db.ref('withdrawals').push(request).then(() => { alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.'); document.getElementById('notification-badge').style.display = 'flex'; document.getElementById('pulCekModal').style.display = 'none'; ['withdrawAmount', 'userName', 'userSurname', 'cardNumber'].forEach(id => document.getElementById(id).value = ''); }).catch(err => { alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message); balanceRef.transaction(currentData => ({ amount: ((currentData && currentData.amount) || 0) + amount })); }); } }); }); });
-    function initializeSupportChat(user) { const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge'); if (messageListener) messageListener.off(); if (chatStateListener) chatStateListener.off(); chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } }; const chatRef = db.ref(`support_chats/${user.uid}`); chatStateListener = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; }); chatMessages.innerHTML = ''; const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50); messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; }); const sendMessage = () => { const text = chatInput.value.trim(); if (text === '') return; const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP }; db.ref(`support_chats/${user.uid}/messages`).push(messageData); db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true }); chatInput.value = ''; }; sendChatBtn.onclick = sendMessage; chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }; }
-    document.getElementById('status-icon').addEventListener('click', () => { document.getElementById('statusModal').style.display = 'flex'; });
-    function initializeSystemStatus() { const statusRef = db.ref('system_status'); const statusListContainer = document.getElementById('status-list'); statusRef.on('value', (snapshot) => { if (!snapshot.exists()) { statusListContainer.innerHTML = '<p>Sistem vəziyyəti haqqında məlumat yoxdur.</p>'; return; } const statuses = snapshot.val(); statusListContainer.innerHTML = ''; const sortedStatuses = Object.values(statuses).sort((a, b) => a.order - b.order); sortedStatuses.forEach(data => { const itemDiv = document.createElement('div'); itemDiv.className = 'status-item'; itemDiv.innerHTML = ` <div class="status-indicator ${data.state || 'paused'}"></div> <div class="status-text"> <span class="label">${data.label}</span> <span class="description">${data.status_text}</span> </div> `; statusListContainer.appendChild(itemDiv); }); }); }
-    window.onload = function() { const preloader = document.getElementById('preloader'); const animatedBag = document.getElementById('animated-bag'); const finalBag = document.querySelector('.card .bag'); const contentWrapper = document.querySelector('.content-wrapper'); preloader.style.opacity = '0'; setTimeout(() => { animatedBag.style.opacity = '1'; animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)'; }, 200); setTimeout(() => { const finalBagRect = finalBag.getBoundingClientRect(); animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`; animatedBag.style.top = `${finalBagRect.top + finalBagRect.height / 2}px`; animatedBag.style.fontSize = getComputedStyle(finalBag).fontSize; }, 1000); setTimeout(() => { preloader.style.display = 'none'; animatedBag.style.display = 'none'; contentWrapper.style.opacity = '1'; contentWrapper.style.visibility = 'visible'; }, 2200); };
-      let countdownInterval;
-    let rainTimeout;
-    let currentRainInterval = 500; // Başlanğıc interval (ms)
-    let currentRainSpeed = 3.5; // Başlanğıc sürət (saniyə)
-
-    function listenForMoneyRain() {
-      const moneyRainRef = db.ref('moneyRainEvent');
-      moneyRainRef.on('value', (snapshot) => {
-        const event = snapshot.val();
-        if (!event) return;
-        const leaderboardModal = document.getElementById('leaderboardModal');
-        switch (event.status) {
-          case 'pending':
-            leaderboardModal.style.display = 'none';
-            showCountdown(event.startTime);
-            break;
-          case 'active':
-            leaderboardModal.style.display = 'none';
-            hideCountdown();
-            startRainAnimation(event.duration);
-            break;
-          case 'finished':
-            hideRainAnimation();
-            hideCountdown();
-            showLeaderboard(event.leaderboard);
-            break;
-          default:
-            leaderboardModal.style.display = 'none';
-            hideRainAnimation();
-            hideCountdown();
-            break;
+    document.getElementById('cancelStatusUpdate').addEventListener('click', resetStatusForm);
+    function initializeMoneyRainPanel() {
+        const moneyRainRef = db.ref('moneyRainEvent');
+        const statusEl = document.getElementById('moneyRainStatus');
+        const startBtn = document.getElementById('startMoneyRainBtn');
+        const stopBtn = document.getElementById('stopMoneyRainBtn');
+        moneyRainRef.on('value', (snapshot) => {
+            let status = 'idle';
+            if (snapshot.exists() && snapshot.val().status) {
+                status = snapshot.val().status;
+            }
+            statusEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            statusEl.className = 'status-display ' + status;
+            if (status === 'idle' || status === 'finished') {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            } else {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            }
+        });
+        startBtn.addEventListener('click', startMoneyRain);
+        stopBtn.addEventListener('click', stopMoneyRain);
+    }
+    function startMoneyRain() {
+        const amountInput = document.getElementById('moneyRainAmount');
+        const durationInput = document.getElementById('moneyRainDuration');
+        const amount = parseFloat(amountInput.value);
+        const duration = parseInt(durationInput.value, 10);
+        if (isNaN(amount) || amount <= 0) {
+            alert("Zəhmət olmasa, düzgün müsbət məbləğ daxil edin.");
+            return;
         }
-      });
-    }
-    function showCountdown(startTime) {
-      const banner = document.getElementById('countdown-banner');
-      const timerEl = document.getElementById('countdown-timer');
-      banner.style.display = 'block';
-      setTimeout(() => banner.classList.add('visible'), 50);
-      clearInterval(countdownInterval);
-      countdownInterval = setInterval(() => {
-        const remaining = Math.max(0, Math.round((startTime - Date.now()) / 1000));
-        timerEl.textContent = remaining;
-        if (remaining <= 0) {
-          clearInterval(countdownInterval);
+        if (isNaN(duration) || duration < 10) {
+            alert("Oyun müddəti ən az 10 saniyə olmalıdır.");
+            return;
         }
-      }, 1000);
-    }
-    function hideCountdown() {
-      const banner = document.getElementById('countdown-banner');
-      banner.classList.remove('visible');
-      clearInterval(countdownInterval);
-    }
-    function startRainAnimation(duration) {
-      if (rainTimeout) clearTimeout(rainTimeout); // Əvvəlki oyunu təmizlə
-      
-      // Arxa planı kilidlə
-      document.getElementById('game-overlay').style.display = 'block';
-
-      // Oyunun çətinlik parametrlərini sıfırla
-      currentRainInterval = 500; // ms (saniyədə 2 ikon)
-      currentRainSpeed = 3.5; // saniyə
-
-      // Dinamik oyun döngüsünü başlat
-      function gameLoop() {
-          createFallingCoin();
-          rainTimeout = setTimeout(gameLoop, currentRainInterval);
-      }
-      gameLoop();
-    }
-    function hideRainAnimation() {
-      // Arxa plan kilidini aç
-      document.getElementById('game-overlay').style.display = 'none';
-      clearTimeout(rainTimeout);
-      rainTimeout = null;
-      document.querySelectorAll('.falling-coin').forEach(c => c.remove());
-    }
-    function createFallingCoin() {
-      const coin = document.createElement('div');
-      coin.className = 'falling-coin';
-      coin.textContent = ['🪙', '💰', '💵', '💎'][Math.floor(Math.random() * 4)];
-      coin.style.left = `${Math.random() * 95}vw`;
-      // Dinamik sürət tətbiq edilir
-      coin.style.animation = `fall-animation ${Math.random() * 1 + currentRainSpeed}s linear forwards`;
-      coin.onclick = (event) => collectCoin(event.currentTarget);
-      document.body.appendChild(coin);
-      setTimeout(() => coin.remove(), (currentRainSpeed + 1.5) * 1000);
-    }
-    function collectCoin(coinElement) {
-      const user = auth.currentUser;
-      if (!user || !coinElement) return;
-      
-      // Animasiyasız, dərhal yox et
-      coinElement.remove();
-
-      // Hər klikdə oyunu sürətləndir və ikonları çoxalt
-      currentRainSpeed = Math.max(1.5, currentRainSpeed - 0.05); // Sürəti artır (minimum 1.5s)
-      currentRainInterval = Math.max(100, currentRainInterval - 5); // Intervalı azalt (minimum 100ms)
-
-      const userScoreRef = db.ref(`moneyRainEvent/participants/${user.uid}`);
-      userScoreRef.transaction((data) => {
-        if (data === null) {
-          return { score: 1, displayName: user.displayName };
-        } else {
-          return { ...data, score: (data.score || 0) + 1 };
+        if (!confirm(`${amount.toFixed(2)} AZN məbləğində Para Yağışını başlatmaq istədiyinizə əminsiniz?`)) {
+            return;
         }
-      });
-    }
-    function showLeaderboard(leaderboardData) {
-        if (!leaderboardData) return;
-        const modal = document.getElementById('leaderboardModal');
-        const listContainer = document.getElementById('leaderboard-list');
-        const sortedPlayers = Object.values(leaderboardData).sort((a, b) => b.reward - a.reward);
-        let leaderboardHtml = '<ul>';
-        if (sortedPlayers.length > 0) {
-            sortedPlayers.slice(0, 20).forEach((player, index) => {
-                leaderboardHtml += `<li>#${index + 1} <b>${player.displayName}</b> - ${player.reward.toFixed(2)} AZN qazandı!</li>`;
+        const eventData = {
+            status: 'pending',
+            totalAmount: amount,
+            startTime: Date.now() + 30000,
+            duration: duration * 1000,
+            participants: null,
+            leaderboard: null
+        };
+        setTimeout(() => { db.ref('moneyRainEvent/status').set('active'); }, 30000);
+        setTimeout(() => {
+            db.ref('moneyRainEvent').once('value', snapshot => {
+                const event = snapshot.val();
+                if(event && event.status === 'active') {
+                    calculateResultsFromAdmin(event);
+                }
             });
-        } else {
-            leaderboardHtml += '<li>Heç kim iştirak etmədi.</li>';
+        }, 30000 + (duration * 1000) + 1000); // ehtiyat üçün 1 saniyə əlavə
+        db.ref('moneyRainEvent').set(eventData)
+            .then(() => alert("Para Yağışı başladılır! İstifadəçilər 30 saniyə sonra oyuna başlaya biləcəklər."))
+            .catch(error => alert("Xəta: " + error.message));
+    }
+    function stopMoneyRain() {
+        if (!confirm("Para Yağışını dayandırmaq istədiyinizə əminsiniz?")) {
+            return;
         }
-        leaderboardHtml += '</ul>';
-        listContainer.innerHTML = leaderboardHtml;
-        modal.style.display = 'flex';
+        db.ref('moneyRainEvent').update({ status: 'idle' })
+            .then(() => alert("Para Yağışı uğurla dayandırıldı."))
+            .catch(error => alert("Xəta: " + error.message));
+    }
+    function calculateResultsFromAdmin(eventData) {
+        const participants = eventData.participants || {};
+        const totalAmount = eventData.totalAmount;
+        let totalScore = 0;
+        Object.values(participants).forEach(p => { totalScore += p.score; });
+        if (totalScore === 0) {
+            db.ref('moneyRainEvent/status').set('finished');
+            setTimeout(() => { db.ref('moneyRainEvent').update({ status: 'idle' }); }, 15000);
+            return;
+        }
+        const leaderboard = {};
+        const allUpdates = {};
+        for (const uid in participants) {
+            const participant = participants[uid];
+            const reward = (participant.score / totalScore) * totalAmount;
+            const finalReward = parseFloat(reward.toFixed(2));
+            if (finalReward > 0) {
+                leaderboard[uid] = { displayName: participant.displayName, score: participant.score, reward: finalReward };
+                allUpdates[`/balances/${uid}/amount`] = firebase.database.ServerValue.increment(finalReward);
+                // Tarixçəyə əlavə et
+                 const historyKey = db.ref('balance_history/' + uid).push().key;
+                allUpdates[`/balance_history/${uid}/${historyKey}`] = {
+                    amount: finalReward,
+                    type: 'money_rain_reward',
+                    description: 'Para Yağışı Mükafatı',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                };
+            }
+        }
+        allUpdates[`/moneyRainEvent/leaderboard`] = leaderboard;
+        allUpdates[`/moneyRainEvent/status`] = 'finished';
+        db.ref().update(allUpdates);
+        setTimeout(() => {
+            db.ref('moneyRainEvent').update({ status: 'idle' });
+        }, 30000);
     }
 </script>
 </body>
