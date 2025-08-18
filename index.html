@@ -1,507 +1,303 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Hamster Oyunu</title>
-    <style>
-        :root {
-            --bg-dark: #1c1f24;
-            --bg-light: #2d3035;
-            --text-primary: #ffffff;
-            --text-secondary: #8c8f94;
-            --accent-gold: #f3bd2f;
-            --accent-blue: #47a2f3;
-            --energy-glow: rgba(71, 162, 243, 0.5);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        #app-container {
-            width: 100%;
-            height: 100%;
-            max-width: 480px; /* Telegram Web App ölçüsü */
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(180deg, #3a3d42 0%, #1c1f24 100%);
-        }
-
-        /* Giriş Ekranı */
-        #login-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            padding: 20px;
-            text-align: center;
-        }
-        #login-screen h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-        #login-button {
-            background-color: var(--accent-blue);
-            color: var(--text-primary);
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* Əsas Oyun Ekranı */
-        #game-screen {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-        }
-
-        .top-stats {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .stat-box {
-            background-color: var(--bg-light);
-            border-radius: 12px;
-            padding: 8px;
-            flex-grow: 1;
-            text-align: center;
-        }
-        .stat-box .label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-        .stat-box .value {
-            font-size: 1rem;
-            font-weight: bold;
-        }
-        .stat-box img {
-            width: 16px;
-            height: 16px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para Çuvalı</title>
+<style>
+:root{
+  --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e; --card:rgba(255,255,255,0.06);
+  --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e; --red:#dc2626;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial,'Apple Color Emoji','Segoe UI Emoji';
+  color:var(--text); background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; overflow-y:auto; 
+}
+.wrap{display:grid;place-items:center;gap:12px;text-align:center;padding:20px;}
+.user-info{font-size:1rem;font-weight:600;opacity:.9;margin-bottom:6px;}
+.google-btn.hidden { display: none; }
+.card{
+  position:relative; width:min(60vw,320px); aspect-ratio:1/1; display:grid; place-items:center;
+  background: radial-gradient(60% 60% at 50% 30%,var(--glass),transparent 70%),var(--card);
+  border:1px solid rgba(255,255,255,0.14); border-radius:24px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  backdrop-filter:blur(6px);
+}
+.bag{font-size:clamp(5rem,18vw,12rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.balance{margin-top:10px;display:grid;place-items:center;font-weight:700;letter-spacing:1px;text-shadow:0 2px 5px rgba(0,0,0,0.5);}
+.balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem);opacity:.9;margin-right:4px;}
+.balance .value{font-size:clamp(1.5rem,5vw,2.5rem);line-height:1;}
+.google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600;}
+.action-buttons button { position: fixed; right: 20px; padding: 8px 14px; font-size: 0.9rem; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; z-index:1000; }
+#payBtn { top: 20px; background: #22c55e; }
+#cekBtn { top: 58px; background: #2563eb; }
+#pulCekBtn { top: 96px; background: #f59e0b; }
+#notification-bell { position: fixed; top: 20px; left: 20px; font-size: 28px; cursor: pointer; user-select: none; z-index: 10000; }
+#notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+.modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
+.modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color:white; width: min(90vw, 350px); max-height: 90vh; display: flex; flex-direction: column; }
+.modalContent .close-modal-btn { margin-top: auto; padding-top: 15px; }
+.modal-scrollable-content { overflow-y: auto; flex-grow: 1; }
+.modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: #FFFFFF; color: #212529; font-size: 1rem; }
+.modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
+#announcements-container { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+.announcement-item { background: rgba(14, 165, 233, 0.1); border-left: 4px solid #0ea5e9; padding: 12px; border-radius: 6px; text-align: left; margin-bottom: 10px; }
+.announcement-text { font-size: 0.9rem; margin: 0; white-space: pre-wrap; word-break: break-word; }
+.announcement-meta { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
+#notifications-list { max-height: 350px; overflow-y: auto; text-align: left; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+.notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
+.notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.notification-item-amount { font-size: 1.1rem; font-weight: bold; }
+.notification-item-amount.positive { color: #22c55e; } .notification-item-amount.negative { color: #fca5a5; }
+.notification-item-status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; font-size: 0.8rem;}
+.notification-item-body { font-size: 0.85rem; opacity: 0.8; display: flex; justify-content: space-between; align-items: center; }
+.notification-item-footer { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
+.status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
+.status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
+.status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
+.status-cancelled { border-left-color: #6b7280; } .status-cancelled .notification-item-status { background-color: #6b7280; }
+.status-deposit { border-left-color: #3b82f6; } .status-deposit .notification-item-status { background-color: #3b82f6; }
+.cancel-btn { background: var(--red); color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+#support-widget { position: fixed; bottom: 80px; right: 20px; z-index: 10000; }
+#chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
+#chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
+#chat-window { position: absolute; bottom: 80px; right: 0; width: 320px; max-width: 90vw; height: 400px; background: var(--bg3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: none; flex-direction: column; overflow: hidden; }
+#chat-header { padding: 10px; background: rgba(0,0,0,0.2); font-weight: bold; text-align: center; }
+#chat-messages { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.message { max-width: 80%; padding: 8px 12px; border-radius: 10px; line-height: 1.4; word-break: break-word; }
+.message.user { background: #2563eb; color: white; align-self: flex-end; }
+.message.admin { background: #4b5563; color: white; align-self: flex-start; }
+#chat-input-area { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+#chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
+#send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
+#preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out; }
+#animated-bag { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35)); }
+.content-wrapper { opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; width:100%; }
+.balance-update-text { animation: text-flash 0.7s ease-in-out; }
+@keyframes text-flash { 0% { color: var(--text); transform: scale(1); } 50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); } 100% { color: var(--text); transform: scale(1); } }
+.coin { position: fixed; top: -50px; font-size: 2rem; z-index: 9998; pointer-events: none; animation-name: fall-and-fade; animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); animation-fill-mode: forwards; }
+@keyframes fall-and-fade { from { transform: translateY(0) rotateZ(0deg); opacity: 1; } to { transform: translateY(65vh) rotateZ(360deg); opacity: 0; } }
+.filter-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+.filter-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s ease; }
+.filter-btn:hover { background: rgba(255,255,255,0.2); }
+.filter-btn.active { background: var(--accent); color: var(--bg1); font-weight: bold; border-color: var(--accent); }
+#status-icon { position: fixed; top: 20px; left: 60px; font-size: 28px; cursor: pointer; user-select: none; z-index: 10000; }
+#status-list { text-align: left; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+.status-item { display: flex; align-items: center; gap: 12px; }
+.status-indicator { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.status-indicator.active { background-color: var(--accent); }
+.status-indicator.delayed { background-color: #f59e0b; }
+.status-indicator.paused { background-color: var(--red); }
+.status-text .label { font-weight: bold; display: block; margin-bottom: 4px; }
+.status-text .description { font-size: 0.9rem; opacity: 0.8; }
+#countdown-banner { display: none; position: fixed; top: 20px; right: 20px; transform: translateX(120%); background: rgba(15, 12, 41, 0.8); backdrop-filter: blur(5px); color: #f59e0b; padding: 12px 20px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.3); z-index: 10005; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,0.3); width: auto; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+#countdown-banner.visible { transform: translateX(0); }
+.falling-coin { position: fixed; top: -60px; font-size: 2.2rem; user-select: none; pointer-events: auto; cursor: pointer; z-index: 10003; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); padding: 5px; }
+@keyframes fall-animation { from { transform: translateY(0) rotateZ(0deg); opacity: 1; } to { transform: translateY(100vh) rotateZ(720deg); opacity: 0; } }
+#leaderboardModal .modalContent ul { list-style: none; padding: 0; width: 100%; text-align: left; margin-top: 15px; max-height: 400px; overflow-y: auto; }
+#leaderboardModal .modalContent li { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.95rem; font-weight: 500; }
+#leaderboardModal .modalContent li:first-child { background: #f59e0b; color: var(--bg1); font-weight: bold; }
+#game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10002; display: none; }
+.page { display: none; width: 100%; padding: 20px; padding-bottom: 80px; }
+.page.active { display: block; }
+.page#home-page.active { display: grid; place-items: center; min-height: calc(100vh - 80px); }
+.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; background: rgba(15, 12, 41, 0.8); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.1); z-index: 10010; }
+.nav-btn { background: none; border: none; color: var(--text); opacity: 0.6; font-size: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: opacity 0.3s, color 0.3s; }
+.nav-btn span { font-size: 11px; font-weight: 600; }
+.nav-btn:hover { opacity: 1; }
+.nav-btn.active { color: var(--accent); opacity: 1; }
+.page h2 { margin-bottom: 20px; font-size: 1.8rem; text-align: center; display:flex; align-items:center; justify-content:center; gap: 10px; }
+.page p { max-width: 400px; margin: 0 auto; opacity: 0.8; text-align: center;}
+.faq-container { max-width: 600px; margin: 0 auto; text-align: left; }
+.faq-item { background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 10px; }
+.faq-item summary { font-weight: bold; font-size: 1rem; padding: 15px; cursor: pointer; position: relative; list-style: none; } /* list-style: none to remove arrow */
+.faq-item summary::-webkit-details-marker { display: none; } /* For Chrome/Safari */
+.faq-item summary::after { content: '+'; position: absolute; right: 20px; font-size: 1.5rem; }
+.faq-item[open] > summary::after { content: '−'; }
+.faq-content { padding: 0 15px 15px; opacity: 0.8; line-height: 1.6; }
+</style>
 </head>
-    <style continued>
-        .user-level-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 10px;
-            background-color: var(--bg-light);
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        .user-level-info .league {
-            font-weight: bold;
-        }
-        .user-level-info .level {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        .progress-bar-container {
-            width: 100%;
-            height: 8px;
-            background-color: #434343;
-            border-radius: 4px;
-            margin-top: 5px;
-        }
-        .progress-bar {
-            width: 10%; /* JS ilə idarə olunacaq */
-            height: 100%;
-            background-color: var(--accent-gold);
-            border-radius: 4px;
-        }
+    <body>
+<div id="preloader"></div>
+<div id="animated-bag">💰</div>
+<div id="game-overlay"></div>
+<div id="countdown-banner">Para Yağışı <span id="countdown-timer">30</span> saniyəyə başlayır!</div>
 
-        .balance-display {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .balance-display img {
-            width: 48px;
-            height: 48px;
-        }
-        #balance-value {
-            font-size: 3.5rem;
-            font-weight: bold;
-        }
+<div class="content-wrapper">
 
-        .tapper-zone {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        #tapper-circle {
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #4a4d52 0%, #2d3035 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.05s ease-out;
-            border: 5px solid var(--bg-light);
-        }
-        #tapper-circle:active {
-            transform: scale(0.98);
-        }
-        #hamster-image {
-            width: 75%;
-        }
-
-        .click-feedback {
-            position: absolute;
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--text-primary);
-            opacity: 1;
-            transition: all 1.2s cubic-bezier(0.1, 0.9, 0.2, 1);
-            pointer-events: none;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        .daily-task-button {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: var(--bg-light);
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .daily-task-button img {
-            width: 32px;
-        }
-        .daily-task-button .reward {
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-    </style>
-        <style continued>
-        .energy-boost-zone {
-            position: absolute;
-            bottom: -30px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-        }
-        .energy-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background-color: var(--bg-light);
-            padding: 5px 15px;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 0 15px var(--energy-glow);
-        }
-        .energy-status img {
-            width: 24px;
-        }
-        .boost-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background-color: var(--bg-light);
-            padding: 5px 15px;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .boost-button img {
-            width: 24px;
-        }
-
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            background-color: var(--bg-light);
-            border-radius: 15px;
-            padding: 10px 0;
-            margin-top: auto; /* Ən alta yapışdırır */
-        }
-        .nav-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            text-align: center;
-            font-size: 0.75rem;
-        }
-        .nav-btn.active {
-            color: var(--text-primary);
-        }
-        .nav-btn img {
-            width: 32px;
-            height: 32px;
-        }
-        
-        /* Modal Pəncərə */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; }
-        .modal-content { background: var(--bg-light); padding: 20px; border-radius: 12px; text-align: center; }
-
-    </style>
-</head>
-  <body>
-    <div id="app-container">
-        <div id="login-screen">
-            <h2>Hamster Oyununa Xoş Gəlmisiniz!</h2>
-            <button id="login-button">🚀 Oyuna Başla</button>
+    <div id="home-page" class="page active">
+        <div id="notification-bell"><span>🔔</span><div id="notification-badge" style="display:none;"></div></div>
+        <div id="status-icon"><span>ℹ️</span></div>
+        <div class="action-buttons">
+            <button id="payBtn">💲 YÜKLƏ</button>
+            <button id="cekBtn">📷 ÇEK</button>
+            <button id="pulCekBtn">🏦 ÇEK</button>
         </div>
-
-        <div id="game-screen" class="hidden">
-            <div class="top-stats">
-                <div class="stat-box">
-                    <div class="label"><img src="https://i.ibb.co/L1011m6/hamster-coin.png" alt="tap"> Earn per tap</div>
-                    <div id="stat-earn-per-tap" class="value">+1</div>
-                </div>
-                <div class="stat-box">
-                    <div class="label"><img src="https://i.ibb.co/L1011m6/hamster-coin.png" alt="profit"> Profit per hour</div>
-                    <div id="stat-profit-per-hour" class="value">+0</div>
-                </div>
+        <div class="wrap">
+            <div id="userInfo" class="user-info"></div>
+            <div class="card">
+                <div class="bag">💰</div>
+                <div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div>
             </div>
-
-            <div class="user-level-info">
-                <div>
-                    <div class="league">Bronze</div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar"></div>
-                    </div>
-                </div>
-                <div class="level">Level 1/10</div>
-            </div>
-
-            <div class="balance-display">
-                <img src="https://i.ibb.co/L1011m6/hamster-coin.png" alt="coin">
-                <h1 id="balance-value">0</h1>
-            </div>
-
-            <div class="tapper-zone">
-                <div id="tapper-circle">
-                    <img id="hamster-image" src="https://i.ibb.co/GQLsTyt/hamster.png" alt="Hamster">
-                </div>
-                <div class="daily-task-button">
-                    <img src="https://i.ibb.co/Y0fJz5K/video-play-icon.png" alt="video">
-                    <div class="reward">+10k</div>
-                </div>
-                <div class="energy-boost-zone">
-                    <div class="energy-status">
-                        <img src="https://i.ibb.co/VMyrT1H/lightning.png" alt="energy">
-                        <span id="energy-value">500 / 500</span>
-                    </div>
-                    <div class="boost-button">
-                        <img src="https://i.ibb.co/g9dG0Jg/rocket.png" alt="boost">
-                        <span>Boost</span>
-                    </div>
-                </div>
-            </div>
-            
-            <nav class="bottom-nav">
-                <button class="nav-btn active"> <img src="https://i.ibb.co/VMyrT1H/lightning.png" alt="home"> <div>Home</div> </button>
-                <button class="nav-btn"> <img src="https://i.ibb.co/g9dG0Jg/rocket.png" alt="main"> <div>Main</div> </button>
-                <button class="nav-btn"> <img src="https://i.ibb.co/GQLsTyt/hamster.png" alt="share"> <div>Share</div> </button>
-                <button class="nav-btn"> <img src="https://i.ibb.co/L1011m6/hamster-coin.png" alt="earn"> <div>Earn</div> </button>
-            </nav>
-        </div>
-    </div>
-        <div id="offline-earnings-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3>Yenidən Xoş Gəldin!</h3>
-            <p>Sən burada olmayanda qazancın:</p>
-            <h2 id="offline-amount" style="color:var(--accent-gold); margin: 10px 0;">+0</h2>
-            <button id="claim-offline-btn" style="background-color: var(--accent-blue); color: var(--text-primary); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold;">Təsdiq Et</button>
+            <button class="google-btn" id="loginBtn">🌐 Giriş</button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+    <div id="leaderboard-page" class="page" style="padding-top: 60px;">
+        <h2><img src="https://em-content.zobj.net/source/apple/354/1st-place-medal_1f947.png" width="32" alt="Medal"> Liderlər Sırası</h2>
+        <p>Tezliklə burada ən aktiv və ən çox qazanan istifadəçilərin reytinq cədvəli göstəriləcək.</p>
+    </div>
 
-    <script>
-        // --- Firebase Konfiqurasiyası ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw",
-            authDomain: "niceuc-e5986.firebaseapp.com",
-            databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com",
-            projectId: "niceuc-e5986",
-            appId: "1:242221260650:web:d140153a2167c4738dcf13"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
+    <div id="stats-page" class="page" style="padding-top: 60px;">
+        <h2><img src="https://em-content.zobj.net/source/apple/354/bar-chart_1f4ca.png" width="32" alt="Chart"> Şəxsi Statistika</h2>
+        <p>Maliyyə əməliyyatlarınızın detallı statistikası və aylıq hesabatlar tezliklə burada əlçatan olacaq.</p>
+    </div>
 
-        // --- DOM Elementləri ---
-        const loginScreen = document.getElementById('login-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const loginButton = document.getElementById('login-button');
-        const balanceValueEl = document.getElementById('balance-value');
-        const earnPerTapEl = document.getElementById('stat-earn-per-tap');
-        const profitPerHourEl = document.getElementById('stat-profit-per-hour');
-        const tapperCircle = document.getElementById('tapper-circle');
-        const energyValueEl = document.getElementById('energy-value');
+    <div id="help-page" class="page" style="padding-top: 60px;">
+        <h2><img src="https://em-content.zobj.net/source/apple/354/red-question-mark_2753.png" width="32" alt="Question"> Kömək Mərkəzi</h2>
+        <div class="faq-container">
+            <details class="faq-item">
+                <summary>Balansıma necə pul yükləyə bilərəm?</summary>
+                <div class="faq-content">
+                    <p>Əsas səhifədəki yaşıl "YÜKLƏ" düyməsinə basın. Açılan pəncərədə göstərilən M10 hesab nömrəsinə məbləği köçürdükdən sonra qəbzin şəklini "ÇEK" bölməsi vasitəsilə bizə göndərin. Əməliyyat qısa zamanda təsdiqlənəcək.</p>
+                </div>
+            </details>
+            <details class="faq-item">
+                <summary>Pul çıxarışı nə qədər vaxt aparır?</summary>
+                <div class="faq-content">
+                    <p>Pul çıxarış sorğuları adətən 24 saat ərzində yoxlanılır və təsdiqlənir. Sorğunuzun statusunu bildirişlər ("🔔") bölməsindən izləyə bilərsiniz.</p>
+                </div>
+            </details>
+            <details class="faq-item">
+                <summary>"Para Yağışı" nədir?</summary>
+                <div class="faq-content">
+                    <p>"Para Yağışı" müəyyən zamanlarda keçirilən bonus oyunudur. Oyun aktiv olduqda ekrana düşən ikonları klikləyərək xal toplayırsınız. Oyunun sonunda ən çox xal toplayan iştirakçılar real pul mükafatları qazanır.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+</div>
+<div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
+<div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
+<div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><div class="modal-scrollable-content"><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required></div><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
+<div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Hesab Çıxarışı və Elanlar</h3><div class="modal-scrollable-content"><div class="filter-buttons"><button class="filter-btn" onclick="fetchAndDisplayHistory('7d')">Son 7 gün</button><button class="filter-btn" onclick="fetchAndDisplayHistory('month')">Bu Ay</button><button class="filter-btn active" onclick="fetchAndDisplayHistory('all')">Bütün Tarixçə</button></div><div id="announcements-container"></div><div id="notifications-list"></div></div><button class="close-modal-btn">Bağla</button></div></div>
+<div class="modalOverlay" id="statusModal"><div class="modalContent"><h3>Sistem Vəziyyəti</h3><div class="modal-scrollable-content"><div id="status-list"><p>Məlumatlar yüklənir...</p></div></div><button class="close-modal-btn">Bağla</button></div></div>
+<div class="modalOverlay" id="leaderboardModal"><div class="modalContent"><h3>Para Yağışı Nəticələri</h3><div class="modal-scrollable-content"><div id="leaderboard-list"></div></div><button class="close-modal-btn">Bağla</button></div></div>
 
-        // --- Oyun Dəyişənləri ---
-        let currentUser = null;
-        let userData = {};
-        const MAX_ENERGY = 500;
-        const ENERGY_REGEN_RATE = 1; // Saniyədə bərpa olunan enerji
+<div id="support-widget">
+    <div id="chat-window">
+        <div id="chat-header">Dəstək</div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Mesajınızı yazın...">
+            <button id="send-chat-btn"> göndər</button>
+        </div>
+    </div>
+    <button id="chat-toggle-btn">
+        <span>💬</span>
+        <div id="chat-notification-badge" style="display:none;"></div>
+    </button>
+</div>
 
-        // --- Giriş Məntiqi ---
-        loginButton.addEventListener('click', () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => console.error("Giriş xətası:", error));
-        });
+<nav class="bottom-nav">
+    <button onclick="showPage('home-page')" class="nav-btn active">🏠<br><span>Əsas</span></button>
+    <button onclick="showPage('leaderboard-page')" class="nav-btn">🥇<br><span>Liderlər</span></button>
+    <button onclick="showPage('stats-page')" class="nav-btn">📊<br><span>Statistika</span></button>
+    <button onclick="showPage('help-page')" class="nav-btn">❓<br><span>Kömək</span></button>
+</nav>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+<script>
+    // SƏHİFƏ GÖSTƏRMƏ FUNKSİYASI
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => { page.classList.remove('active'); });
+        const activePage = document.getElementById(pageId);
+        if (activePage) { activePage.classList.add('active'); }
+        document.querySelectorAll('.nav-btn').forEach(btn => { btn.classList.remove('active'); });
+        const activeButton = document.querySelector(`.nav-btn[onclick="showPage('${pageId}')"]`);
+        if (activeButton) { activeButton.classList.add('active'); }
+    }
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-                loginScreen.classList.add('hidden');
-                gameScreen.classList.remove('hidden');
-                loadUserDataAndStartGame(user.uid);
-            } else {
-                currentUser = null;
-                loginScreen.classList.remove('hidden');
-                gameScreen.classList.add('hidden');
-            }
-        });
-    </script>
-        <script continued>
-        function loadUserDataAndStartGame(uid) {
-            const userRef = db.ref(`users/${uid}`);
-            userRef.on('value', (snapshot) => {
-                if (!snapshot.exists()) {
-                    // Yeni istifadəçi yaradırıq
-                    userData = {
-                        displayName: currentUser.displayName,
-                        balance: 0,
-                        profitPerHour: 0,
-                        earnPerTap: 1,
-                        energy: MAX_ENERGY,
-                        maxEnergy: MAX_ENERGY,
-                        lastSeen: Date.now()
-                    };
-                    userRef.set(userData);
+    const firebaseConfig = { apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw", authDomain: "niceuc-e5986.firebaseapp.com", databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com", projectId: "niceuc-e5986", appId: "1:242221260650:web:d140153a2167c4738dcf13" };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    let balanceListener = null, chatStateListener = null, messageListener = null;
+    
+    function animateCountUp(element, start, end, duration) { let startTime = null; const step = (timestamp) => { if (!startTime) startTime = timestamp; const progress = Math.min((timestamp - startTime) / duration, 1); const current = start + progress * (end - start); element.textContent = current.toFixed(2); if (progress < 1) { window.requestAnimationFrame(step); } }; window.requestAnimationFrame(step); }
+    function createCoinShower() { const coinCount = 10; const body = document.body; for (let i = 0; i < coinCount; i++) { const coin = document.createElement('span'); coin.className = 'coin'; coin.innerHTML = '🪙'; coin.style.left = `${Math.random() * 95}vw`; coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`; coin.style.animationDelay = `${Math.random() * 0.4}s`; body.appendChild(coin); setTimeout(() => { coin.remove(); }, 2000); } }
+
+    auth.onAuthStateChanged(user => {
+        const supportWidget = document.getElementById('support-widget');
+        const loginBtn = document.getElementById('loginBtn');
+        let lastKnownBalance = 0;
+        if (user) {
+            document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
+            loginBtn.classList.add('hidden');
+            db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
+            if (balanceListener) balanceListener.off();
+            balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
+                const balanceData = snapshot.val();
+                let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
+                const balanceElement = document.getElementById('balance');
+                if (newBalance > lastKnownBalance && lastKnownBalance !== 0) {
+                    createCoinShower();
+                    balanceElement.classList.add('balance-update-text');
+                    balanceElement.addEventListener('animationend', () => { balanceElement.classList.remove('balance-update-text'); }, { once: true });
+                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200);
                 } else {
-                    userData = snapshot.val();
+                    balanceElement.textContent = newBalance.toFixed(2);
                 }
-
-                calculateOfflineEarnings(); // Offline qazancı yoxla
-                updateUI();
+                lastKnownBalance = newBalance;
             });
-
-            // Enerji bərpası intervalı
-            setInterval(regenerateEnergy, 1000);
+            supportWidget.style.display = 'block';
+            initializeSupportChat(user);
+            initializeSystemStatus();
+            listenForMoneyRain();
+        } else {
+            document.getElementById('userInfo').textContent = '';
+            document.getElementById('balance').textContent = '0.00';
+            loginBtn.classList.remove('hidden');
+            lastKnownBalance = 0;
+            if (balanceListener) balanceListener.off();
+            if (chatStateListener) chatStateListener.off();
+            if (messageListener) messageListener.off();
+            supportWidget.style.display = 'none';
         }
+    });
 
-        function updateUI() {
-            balanceValueEl.textContent = Math.floor(userData.balance).toLocaleString();
-            earnPerTapEl.textContent = `+${userData.earnPerTap}`;
-            profitPerHourEl.textContent = `+${userData.profitPerHour.toLocaleString()}`;
-            energyValueEl.textContent = `${userData.energy} / ${userData.maxEnergy}`;
-        }
-
-        function calculateOfflineEarnings() {
-            // Bu funksiya əvvəlki kodda olduğu kimi işləyir
-            // ... (yerləşdiriləcək)
-        }
-
-        // --- Klik Məntiqi ---
-        tapperCircle.addEventListener('click', (event) => {
-            if (!currentUser || userData.energy <= 0) return;
-
-            // Enerjini azalt
-            userData.energy -= 1;
-            
-            // Balansı artır
-            const newBalance = userData.balance + userData.earnPerTap;
-            db.ref(`users/${currentUser.uid}/balance`).set(newBalance);
-            db.ref(`users/${currentUser.uid}/energy`).set(userData.energy);
-            
-            // UI-ı anında yenilə
-            balanceValueEl.textContent = Math.floor(newBalance).toLocaleString();
-            energyValueEl.textContent = `${userData.energy} / ${userData.maxEnergy}`;
-
-            // Klik animasiyası
-            const feedback = document.createElement('div');
-            feedback.className = 'click-feedback';
-            feedback.textContent = `+${userData.earnPerTap}`;
-            feedback.style.left = `${event.clientX - tapperCircle.getBoundingClientRect().left}px`;
-            feedback.style.top = `${event.clientY - tapperCircle.getBoundingClientRect().top}px`;
-            tapperCircle.appendChild(feedback);
-            
-            setTimeout(() => {
-                feedback.style.transform = 'translateY(-100px) scale(1.5)';
-                feedback.style.opacity = '0';
-            }, 10);
-            setTimeout(() => feedback.remove(), 1200);
-        });
-
-        // --- Enerji Bərpası ---
-        function regenerateEnergy() {
-            if (currentUser && userData.energy < userData.maxEnergy) {
-                const now = Date.now();
-                const lastSeen = userData.lastSeen || now;
-                const secondsPassed = Math.floor((now - lastSeen) / 1000);
-                
-                if (secondsPassed > 0) {
-                    const energyToRegen = secondsPassed * ENERGY_REGEN_RATE;
-                    userData.energy = Math.min(userData.maxEnergy, userData.energy + energyToRegen);
-                    userData.lastSeen = now;
-                    
-                    // Yalnız dəyişiklik varsa Firebase-ə yaz
-                    db.ref(`users/${currentUser.uid}`).update({
-                        energy: userData.energy,
-                        lastSeen: userData.lastSeen
-                    });
-                    
-                    updateUI();
-                }
-            } else if (currentUser) {
-                // Enerji doludursa, sadəcə son görülmə vaxtını yenilə
-                db.ref(`users/${currentUser.uid}/lastSeen`).set(Date.now());
-            }
-        }
-    </script>
+    function cancelWithdrawal(withdrawalId, amount) { const parsedAmount = parseFloat(amount); if (!confirm(`${parsedAmount.toFixed(2)} AZN məbləğindəki çıxarış sorğusunu ləğv etmək istədiyinizə əminsiniz? Məbləğ balansınıza geri qaytarılacaq.`)) { return; } const user = auth.currentUser; if (!user) return alert("Xəta: İstifadəçi tapılmadı."); const withdrawalRef = db.ref(`withdrawals/${withdrawalId}`); withdrawalRef.once('value').then(snapshot => { const request = snapshot.val(); if (!request || request.status !== 'pending') { alert("Bu sorğu artıq emal edilib və ləğv edilə bilməz."); document.getElementById('notification-bell').click(); return; } const updates = {}; updates[`/withdrawals/${withdrawalId}/status`] = 'cancelled'; updates[`/balances/${user.uid}/amount`] = firebase.database.ServerValue.increment(parsedAmount); db.ref().update(updates).then(() => { alert("Sorğunuz ləğv edildi və məbləğ balansınıza geri qaytarıldı."); const modal = document.getElementById('notificationsModal'); if (modal.style.display === 'flex') { modal.style.display = 'none'; setTimeout(() => document.getElementById('notification-bell').click(), 200); } }).catch(error => { alert("Xəta baş verdi: " + error.message); }); }); }
+    
+    document.getElementById('loginBtn').addEventListener('click', () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(error => alert(error.message)); });
+    document.getElementById('payBtn').addEventListener('click', () => document.getElementById('payModal').style.display = 'flex');
+    document.getElementById('cekBtn').addEventListener('click', () => document.getElementById('cekModal').style.display = 'flex');
+    document.getElementById('pulCekBtn').addEventListener('click', () => document.getElementById('pulCekModal').style.display = 'flex');
+    document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
+    document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
+    
+    let fetchAndDisplayHistory;
+    document.getElementById('notification-bell').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.'); const modal = document.getElementById('notificationsModal'); modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none'; const announcementsContainer = document.getElementById('announcements-container'); announcementsContainer.innerHTML = ''; db.ref('announcements').limitToLast(5).once('value').then(snapshot => { if (snapshot.exists()) { let announcements = []; snapshot.forEach(child => { announcements.push(child.val()); }); announcements.reverse().forEach(ann => { const annDiv = document.createElement('div'); annDiv.className = 'announcement-item'; annDiv.innerHTML = `<p class="announcement-text">${ann.text}</p><div class="announcement-meta">${new Date(ann.createdAt).toLocaleDateString()}</div>`; announcementsContainer.appendChild(annDiv); }); } }); fetchAndDisplayHistory('all'); });
+        fetchAndDisplayHistory = function(filterType = 'all') { const user = auth.currentUser; if (!user) return; const list = document.getElementById('notifications-list'); list.innerHTML = '<p>Yüklənir...</p>'; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); const activeButton = [...document.querySelectorAll('.filter-btn')].find(btn => btn.getAttribute('onclick').includes(`'${filterType}'`)); if (activeButton) activeButton.classList.add('active'); let startTime = 0; const now = new Date(); if (filterType === '7d') { startTime = now.setDate(now.getDate() - 7); } else if (filterType === 'month') { startTime = new Date(now.getFullYear(), now.getMonth(), 1).getTime(); } Promise.all([db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).once('value'), db.ref('deposits').orderByChild('uid').equalTo(user.uid).once('value')]).then(([withdrawalsSnapshot, depositsSnapshot]) => { let allTransactions = []; withdrawalsSnapshot.forEach(child => allTransactions.push({ key: child.key, ...child.val() })); depositsSnapshot.forEach(child => allTransactions.push({ ...child.val(), type: 'deposit' })); const filteredTransactions = allTransactions.filter(item => item.createdAt >= startTime); if (filteredTransactions.length === 0) { list.innerHTML = '<p>Bu dövr üçün heç bir əməliyyat tapılmadı.</p>'; return; } filteredTransactions.sort((a, b) => b.createdAt - a.createdAt); list.innerHTML = ''; filteredTransactions.forEach(data => { const itemDiv = document.createElement('div'); if (data.type === 'deposit') { itemDiv.className = 'notification-item status-deposit'; const descriptionText = data.description || 'Balansınıza vəsait əlavə edildi.'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount positive">+${parseFloat(data.amount).toFixed(2)} AZN</span><span class="notification-item-status">Mədaxil</span></div><div class="notification-item-body"><span>${descriptionText}</span></div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } else { let statusText, statusClass; switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; case 'pending': statusText = 'Gözləmədə'; statusClass = 'status-pending'; break; case 'cancelled': statusText = 'Ləğv Edildi'; statusClass = 'status-cancelled'; break; default: statusText = data.status; statusClass = 'status-cancelled'; } let actionHtml = data.status === 'pending' ? `<button class="cancel-btn" onclick="cancelWithdrawal('${data.key}', ${data.requestData.amount})">Ləğv Et</button>` : ''; const maskedCardNumber = data.requestData.cardNumber ? '**** ' + data.requestData.cardNumber.slice(-4) : 'Kart məlumatı yoxdur'; itemDiv.className = `notification-item ${statusClass}`; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount negative">-${parseFloat(data.requestData.amount).toFixed(2)} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body"><span>Kart: ${maskedCardNumber}</span> ${actionHtml}</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } list.appendChild(itemDiv); }); }).catch(error => { list.innerHTML = '<p>Məlumatları yükləyərkən xəta baş verdi.</p>'; console.error("Error fetching data:", error); }); };
+    document.getElementById('withdrawBtn').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Zəhmət olmasa, daxil olun.'); db.ref('balances/' + user.uid).once('value', snapshot => { const currentBalance = (snapshot.val() && typeof snapshot.val().amount === 'number') ? snapshot.val().amount : 0; const amount = parseFloat(document.getElementById('withdrawAmount').value); const name = document.getElementById('userName').value.trim(); const surname = document.getElementById('userSurname').value.trim(); const card = document.getElementById('cardNumber').value.trim(); if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.'); if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.'); if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.'); const balanceRef = db.ref('balances/' + user.uid); balanceRef.transaction(currentData => { if (!currentData || amount > currentData.amount) return; return { amount: currentData.amount - amount }; }, (error, committed) => { if (error) { alert('Əməliyyat zamanı xəta baş verdi: ' + error.message); } else if (committed) { const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP }; db.ref('withdrawals').push(request).then(() => { alert('Sorğunuz göndərildi.'); document.getElementById('pulCekModal').style.display = 'none'; ['withdrawAmount', 'userName', 'userSurname', 'cardNumber'].forEach(id => document.getElementById(id).value = ''); }).catch(err => { alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message); balanceRef.transaction(currentData => ({ amount: (currentData.amount || 0) + amount })); }); } else { alert('Balansınızda kifayət qədər vəsait yoxdur.'); } }); }); });
+    function initializeSupportChat(user) { const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge'); if (messageListener) messageListener.off(); if (chatStateListener) chatStateListener.off(); chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } }; const chatRef = db.ref(`support_chats/${user.uid}`); chatStateListener = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; }); chatMessages.innerHTML = ''; const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50); messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; }); const sendMessage = () => { const text = chatInput.value.trim(); if (text === '') return; const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP }; db.ref(`support_chats/${user.uid}/messages`).push(messageData); db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true }); chatInput.value = ''; }; sendChatBtn.onclick = sendMessage; chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }; }
+    document.getElementById('status-icon').addEventListener('click', () => { document.getElementById('statusModal').style.display = 'flex'; });
+    function initializeSystemStatus() { const statusRef = db.ref('system_status'); const statusListContainer = document.getElementById('status-list'); statusRef.on('value', (snapshot) => { if (!snapshot.exists()) { statusListContainer.innerHTML = '<p>Sistem vəziyyəti haqqında məlumat yoxdur.</p>'; return; } const statuses = snapshot.val(); statusListContainer.innerHTML = ''; const sortedStatuses = Object.values(statuses).sort((a, b) => a.order - b.order); sortedStatuses.forEach(data => { const itemDiv = document.createElement('div'); itemDiv.className = 'status-item'; itemDiv.innerHTML = ` <div class="status-indicator ${data.state || 'paused'}"></div> <div class="status-text"> <span class="label">${data.label}</span> <span class="description">${data.status_text}</span> </div> `; statusListContainer.appendChild(itemDiv); }); }); }
+    window.onload = function() { const preloader = document.getElementById('preloader'); const animatedBag = document.getElementById('animated-bag'); const finalBag = document.querySelector('#home-page .card .bag'); const contentWrapper = document.querySelector('.content-wrapper'); preloader.style.opacity = '0'; setTimeout(() => { animatedBag.style.opacity = '1'; animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)'; }, 200); setTimeout(() => { if (!finalBag) return; const finalBagRect = finalBag.getBoundingClientRect(); animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`; animatedBag.style.top = `${finalBagRect.top + finalBagRect.height / 2}px`; animatedBag.style.fontSize = getComputedStyle(finalBag).fontSize; }, 1000); setTimeout(() => { preloader.style.display = 'none'; animatedBag.style.display = 'none'; contentWrapper.style.opacity = '1'; contentWrapper.style.visibility = 'visible'; }, 2200); };
+    let countdownInterval; let rainTimeout; let currentRainInterval = 500; let currentRainSpeed = 3.5;
+    function listenForMoneyRain() { const moneyRainRef = db.ref('moneyRainEvent'); moneyRainRef.on('value', (snapshot) => { const event = snapshot.val(); console.log("Money Rain Event Update:", event); if (!event) return; switch (event.status) { case 'pending': hideRainAnimation(); document.getElementById('leaderboardModal').style.display = 'none'; showCountdown(event.startTime); break; case 'active': document.getElementById('leaderboardModal').style.display = 'none'; hideCountdown(); startRainAnimation(); break; case 'finished': hideRainAnimation(); hideCountdown(); showLeaderboard(event.leaderboard); break; default: hideRainAnimation(); hideCountdown(); break; } }); }
+    function showCountdown(startTime) { const banner = document.getElementById('countdown-banner'); const timerEl = document.getElementById('countdown-timer'); banner.style.display = 'block'; setTimeout(() => banner.classList.add('visible'), 50); clearInterval(countdownInterval); countdownInterval = setInterval(() => { const remaining = Math.max(0, Math.round((startTime - Date.now()) / 1000)); timerEl.textContent = remaining; if (remaining <= 0) { clearInterval(countdownInterval); } }, 1000); }
+    function hideCountdown() { const banner = document.getElementById('countdown-banner'); banner.classList.remove('visible'); clearInterval(countdownInterval); }
+    function startRainAnimation() { if (rainTimeout) clearTimeout(rainTimeout); document.getElementById('game-overlay').style.display = 'block'; currentRainInterval = 500; currentRainSpeed = 3.5; function gameLoop() { createFallingCoin(); rainTimeout = setTimeout(gameLoop, currentRainInterval); } gameLoop(); }
+    function hideRainAnimation() { document.getElementById('game-overlay').style.display = 'none'; clearTimeout(rainTimeout); rainTimeout = null; document.querySelectorAll('.falling-coin').forEach(c => c.remove()); }
+    function createFallingCoin() { const coin = document.createElement('div'); coin.className = 'falling-coin'; coin.textContent = ['🪙', '💰', '💵', '💎'][Math.floor(Math.random() * 4)]; coin.style.left = `${Math.random() * 95}vw`; coin.style.animation = `fall-animation ${Math.random() * 1 + currentRainSpeed}s linear forwards`; coin.onclick = (event) => collectCoin(event.currentTarget); document.body.appendChild(coin); setTimeout(() => coin.remove(), (currentRainSpeed + 1.5) * 1000); }
+    function collectCoin(coinElement) { const user = auth.currentUser; if (!user || !coinElement) return; coinElement.remove(); currentRainSpeed = Math.max(1.5, currentRainSpeed - 0.05); currentRainInterval = Math.max(100, currentRainInterval - 5); const userScoreRef = db.ref(`moneyRainEvent/participants/${user.uid}`); userScoreRef.transaction((data) => { if (data === null) { return { score: 1, displayName: user.displayName }; } else { return { ...data, score: (data.score || 0) + 1 }; } }); }
+    function showLeaderboard(leaderboardData) { console.log("Showing leaderboard with data:", leaderboardData); const modal = document.getElementById('leaderboardModal'); const listContainer = document.getElementById('leaderboard-list'); if (!leaderboardData || Object.keys(leaderboardData).length === 0) { listContainer.innerHTML = '<ul><li>Nəticələr tapılmadı və ya heç kim iştirak etmədi.</li></ul>'; modal.style.display = 'flex'; return; } const sortedPlayers = Object.values(leaderboardData).sort((a, b) => (b.reward || 0) - (a.reward || 0)); let leaderboardHtml = '<ul>'; if (sortedPlayers.length > 0) { sortedPlayers.slice(0, 20).forEach((player, index) => { leaderboardHtml += `<li>#${index + 1} <b>${player.displayName}</b> - ${parseFloat(player.reward || 0).toFixed(2)} AZN qazandı!</li>`; }); } leaderboardHtml += '</ul>'; listContainer.innerHTML = leaderboardHtml; modal.style.display = 'flex'; }
+</script>
 </body>
 </html>
