@@ -147,6 +147,30 @@
         </form>
             </div>
                   <div class="section">
+        <h2 style="margin:0;">Tapşırıq İdarəetməsi</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h3>Yeni Tapşırıq Yarat</h3>
+                <form id="taskForm" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <input type="hidden" id="taskKey">
+                    <div><label for="taskTitle">Başlıq</label><input type="text" id="taskTitle" required></div>
+                    <div><label for="taskDescription">Açıqlama</label><textarea id="taskDescription" rows="2"></textarea></div>
+                    <div><label for="taskLink">Link (URL)</label><input type="url" id="taskLink" required></div>
+                    <div><label for="taskRewardType">Mükafat Növü</label><select id="taskRewardType"><option value="gems">Almaz 💎</option><option value="xp">XP</option></select></div>
+                    <div><label for="taskRewardAmount">Mükafat Miqdarı</label><input type="number" id="taskRewardAmount" required></div>
+                    <div style="text-align: right;"><button type="submit" class="btn btn-green" id="saveTaskBtn">Yadda Saxla</button></div>
+                </form>
+            </div>
+            <div>
+                <h3>Tapşırıq Təsdiqləri</h3>
+                <table id="taskSubmissionsTable">
+                    <thead><tr><th>İstifadəçi</th><th>Tapşırıq</th><th>Tarix</th><th>Əməliyyat</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+                  </div>
+                        <div class="section">
         <h2 style="margin:0;">Sistem Vəziyyətini İdarə Et</h2>
         <table id="statusManagementTable">
             <thead><tr><th>Sıra</th><th>Başlıq</th><th>Açıqlama</th><th>Vəziyyət</th><th>Əməliyyatlar</th></tr></thead>
@@ -249,6 +273,7 @@
         loadDashboardStats();
         loadBirjaSettings();
         loadShopItemsAdmin();
+        loadTaskSubmissions();
         loadSystemStatuses();
         loadAnnouncements();
         loadSupportChats();
@@ -277,7 +302,11 @@
     function deleteShopItem(key) { if (confirm("Bu əşyanı mağazadan silmək istədiyinizə əminsiniz?")) { db.ref('shop_items/' + key).remove(); } }
     function resetShopItemForm() { document.getElementById('shopItemForm').reset(); document.getElementById('shopItemKey').value = ''; document.getElementById('shop-form-title').textContent = 'Yeni Əşya Əlavə Et'; document.getElementById('cancelShopItemUpdate').style.display = 'none'; }
     document.getElementById('cancelShopItemUpdate').addEventListener('click', resetShopItemForm);
-      async function applyBalanceChange(uid, type, inputId) {
+    document.getElementById('taskForm').addEventListener('submit', function(e) { e.preventDefault(); const taskData = { title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, link: document.getElementById('taskLink').value, reward_type: document.getElementById('taskRewardType').value, reward_amount: parseInt(document.getElementById('taskRewardAmount').value) }; db.ref('tasks').push(taskData).then(() => { alert("Tapşırıq uğurla yaradıldı."); this.reset(); }).catch(err => alert("Xəta: " + err.message)); });
+    async function approveTask(uid, taskId) { const submissionRef = db.ref(`/task_submissions/${uid}/${taskId}`); const taskRef = db.ref(`/tasks/${taskId}`); try { const taskSnapshot = await taskRef.once('value'); if(!taskSnapshot.exists()) { alert("Tapşırıq tapılmadı!"); return; } const task = taskSnapshot.val(); const updates = {}; if(task.reward_type === 'gems') { updates[`/user_gems/${uid}/amount`] = firebase.database.ServerValue.increment(task.reward_amount); } else if (task.reward_type === 'xp') { updates[`/user_levels/${uid}/xp`] = firebase.database.ServerValue.increment(task.reward_amount); } updates[`/task_submissions/${uid}/${taskId}/status`] = 'completed'; await db.ref().update(updates); alert("Mükafat istifadəçiyə göndərildi."); } catch(e) { alert("Xəta: " + e.message); } }
+    function rejectTask(uid, taskId) { db.ref(`/task_submissions/${uid}/${taskId}/status`).set('rejected').then(() => alert("Sorğu rədd edildi.")); }
+    async function loadTaskSubmissions() { const tableBody = document.getElementById('taskSubmissionsTable').querySelector('tbody'); const submissionsRef = db.ref('task_submissions'); submissionsRef.on('value', async (snapshot) => { tableBody.innerHTML = ''; if(!snapshot.exists()) { tableBody.innerHTML = '<tr><td colspan="4" class="no-data">Heç bir təsdiq sorğusu yoxdur.</td></tr>'; return; } const submissions = snapshot.val(); const allUsers = (await db.ref('/users').once('value')).val() || {}; const allTasks = (await db.ref('/tasks').once('value')).val() || {}; for (const uid in submissions) { for (const taskId in submissions[uid]) { const submission = submissions[uid][taskId]; if (submission.status === 'pending') { const user = allUsers[uid]; const task = allTasks[taskId]; const tr = document.createElement('tr'); tr.innerHTML = `<td data-label="İstifadəçi">${user?.displayName || uid.slice(0,5)}</td><td data-label="Tapşırıq">${task?.title || taskId.slice(0,5)}</td><td data-label="Tarix">${new Date(submission.submittedAt).toLocaleDateString()}</td><td data-label="Əməliyyat"><button class="btn btn-green" onclick="approveTask('${uid}', '${taskId}')">Təsdiqlə</button><button class="btn btn-red" onclick="rejectTask('${uid}', '${taskId}')">Rədd Et</button></td>`; tableBody.appendChild(tr); } } } }); }
+      async function applyChange(uid, type, inputId) {
         const inputElement = document.getElementById(inputId);
         const inputValue = inputElement.value.trim().replace(',', '.');
         if (inputValue === '') return alert("Zəhmət olmasa, bir dəyər daxil edin.");
@@ -303,7 +332,7 @@
             }
             if(finalValue < 0) finalValue = 0;
 
-            if (!confirm(`Bu istifadəçinin ${type.toUpperCase()} balansını ${finalValue.toFixed(2)} olaraq təyin etmək istəyirsiniz?`)) return;
+            if (!confirm(`Bu istifadəçinin ${type.toUpperCase()} balansını ${finalValue.toFixed(0)} olaraq təyin etmək istəyirsiniz?`)) return;
 
             await ref.update({ [amountPath]: finalValue });
             
@@ -341,10 +370,10 @@
                 <td data-label="Almaz (💎)"><b>${userData.gemBalance}</b></td>
                 <td data-label="Əməliyyatlar">
                     <div class="actions-cell">
-                        <input type="text" id="azn-input-${userData.uid}" placeholder="AZN" class="balance-input"><button class="btn btn-blue" onclick="applyBalanceChange('${userData.uid}', 'azn', 'azn-input-${userData.uid}')">OK</button>
-                        <input type="text" id="coin-input-${userData.uid}" placeholder="Coin" class="balance-input"><button class="btn btn-blue" onclick="applyBalanceChange('${userData.uid}', 'coin', 'coin-input-${userData.uid}')">OK</button>
-                        <input type="text" id="gem-input-${userData.uid}" placeholder="Almaz" class="balance-input"><button class="btn btn-blue" onclick="applyBalanceChange('${userData.uid}', 'gem', 'gem-input-${userData.uid}')">OK</button>
-                        <input type="text" id="xp-input-${userData.uid}" placeholder="XP" class="balance-input"><button class="btn btn-blue" onclick="applyBalanceChange('${userData.uid}', 'xp', 'xp-input-${userData.uid}')">OK</button>
+                        <input type="text" id="azn-input-${userData.uid}" placeholder="AZN" class="balance-input"><button class="btn btn-blue" onclick="applyChange('${userData.uid}', 'azn', 'azn-input-${userData.uid}')">OK</button>
+                        <input type="text" id="coin-input-${userData.uid}" placeholder="Coin" class="balance-input"><button class="btn btn-blue" onclick="applyChange('${userData.uid}', 'coin', 'coin-input-${userData.uid}')">OK</button>
+                        <input type="text" id="gem-input-${userData.uid}" placeholder="Almaz" class="balance-input"><button class="btn btn-blue" onclick="applyChange('${userData.uid}', 'gem', 'gem-input-${userData.uid}')">OK</button>
+                        <input type="text" id="xp-input-${userData.uid}" placeholder="XP" class="balance-input"><button class="btn btn-blue" onclick="applyChange('${userData.uid}', 'xp', 'xp-input-${userData.uid}')">OK</button>
                         <button class="btn btn-dark-red" onclick="deleteUser('${userData.uid}', '${userData.email}')">Sil</button>
                     </div>
                 </td>`;
@@ -384,7 +413,7 @@
         });
     }
     document.getElementById('userSearchInput').addEventListener('input', (e) => { const searchTerm = e.target.value.toLowerCase(); if (!searchTerm) { displayUsers(masterUserList); return; } const filteredList = masterUserList.filter(user => { const name = user.displayName ? user.displayName.toLowerCase() : ''; const email = user.email ? user.email.toLowerCase() : ''; const friendlyId = user.friendlyId ? String(user.friendlyId) : ''; return name.includes(searchTerm) || email.includes(searchTerm) || friendlyId.includes(searchTerm); }); displayUsers(filteredList); });
-      function loadSystemStatuses() {
+    function loadSystemStatuses() {
         const tableBody = document.getElementById('statusManagementTable').querySelector('tbody');
         const statusRef = db.ref('system_status');
         statusRef.on('value', (snapshot) => {
