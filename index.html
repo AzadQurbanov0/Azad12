@@ -96,7 +96,6 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
 </head>
 <body>
 	<div id="top-header">
-    <div class="header-balance">hourly_rate<span id="header-rate-balance">0</span></div>
     <div class="header-balance">🪙<span id="header-coin-balance">0</span></div>
     <div class="header-balance">💎<span id="header-gem-balance">0</span></div>
 </div>
@@ -150,7 +149,7 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
         </div>
         <div class="settings-card settings-section">
             <div class="setting-item" id="help-section-in-settings" style="cursor: pointer;"><span>Kömək və Məlumat</span><span>></span></div>
-            <div class="setting-item"><span>Versiya</span><span>3.0.0</span></div>
+            <div class="setting-item"><span>Versiya</span><span>3.1.0</span></div>
         </div>
         <div class="settings-card danger-zone">
             <button id="logoutBtn" class="btn-logout">Çıxış Et</button>
@@ -171,7 +170,7 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
     <div class="modalOverlay" id="offline-earning-modal">
         <div class="modalContent">
             <h3>Xoş Gəldiniz!</h3>
-            <p>Siz oyunda olmadığınız müddətdə <b id="earned-amount">0</b> 🪙 coin qazandınız!</p>
+            <p>Siz oyunda olmadığınız müddətdə dəqiq hesablama ilə <b id="earned-amount">0</b> 🪙 coin qazandınız!</p>
             <button class="close-modal-btn">Əla!</button>
         </div>
     </div>
@@ -203,7 +202,7 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
             db.ref('user_coins/' + user.uid).once('value', snapshot => {
                 if (!snapshot.exists()) {
                     db.ref('user_coins/' + user.uid).set({ amount: 5000 });
-                    db.ref('user_mining_stats/' + user.uid).set({ totalRate: 0 });
+                    db.ref('user_mining_stats/' + user.uid).set({ totalRate: 0, lastLogin: Date.now() });
                 }
             });
             
@@ -232,24 +231,29 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
     async function checkOfflineEarnings(uid) {
         const statsRef = db.ref(`user_mining_stats/${uid}`);
         const snapshot = await statsRef.once('value');
-        const stats = snapshot.val() || { totalRate: 0 };
+        const stats = snapshot.val();
+
+        // Eger istifadeci haqqinda melumat yoxdursa, funksiyani dayandir
+        if (!stats) return;
+
         const lastLogin = stats.lastLogin || Date.now();
         const totalRate = stats.totalRate || 0;
         
         const now = Date.now();
-        const diffHours = (now - lastLogin) / (1000 * 60 * 60);
+        
+        // Dəqiq hesablama (saat ve deqiqe ile)
+        const diffMinutes = (now - lastLogin) / (1000 * 60);
+        const ratePerMinute = totalRate / 60;
+        const earnedAmount = Math.floor(diffMinutes * ratePerMinute);
 
-        // 3 saatdan chox offlinedirsa
-        if (diffHours > 3 && totalRate > 0) {
-            const earnedAmount = Math.floor(diffHours * totalRate);
-            if (earnedAmount > 0) {
-                await db.ref(`user_coins/${uid}/amount`).set(firebase.database.ServerValue.increment(earnedAmount));
-                document.getElementById('earned-amount').textContent = earnedAmount.toLocaleString();
-                document.getElementById('offline-earning-modal').style.display = 'flex';
-            }
+        // Yalniz 1-den cox coin qazanilibsa balans artirilir ve bildirish gosterilir
+        if (earnedAmount >= 1) {
+            await db.ref(`user_coins/${uid}/amount`).set(firebase.database.ServerValue.increment(earnedAmount));
+            document.getElementById('earned-amount').textContent = earnedAmount.toLocaleString();
+            document.getElementById('offline-earning-modal').style.display = 'flex';
         }
         
-        // Son girishi yenile
+        // Son giriş tarixini indiki vaxtla yenilə
         await statsRef.update({ lastLogin: now });
 	}
 	    function switchPage(pageId) {
@@ -360,11 +364,11 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
                     <h3>${cardData.name}</h3>
                     <div class="mining-card-stats">
                         <span class="mining-card-level">Səviyyə: ${currentLevel}</span>
-                        <span class="mining-card-rate">+${currentLevelRule.hourly_rate_provided} hourly_rate/saat</span>
+                        <span class="mining-card-rate">+${currentLevelRule.hourly_rate_provided} /saat</span>
                     </div>
                     ${nextLevelRule ? `
                         <div class="upgrade-info">
-                            Növbəti Səviyyə (+${nextLevelRule.hourly_rate_provided} hourly_rate/s) üçün qiymət: <b>${nextLevelRule.cost} 🪙</b>
+                            Növbəti Səviyyə (+${nextLevelRule.hourly_rate_provided}/s) qiyməti: <b>${nextLevelRule.cost} 🪙</b>
                         </div>
                         <button class="btn-upgrade" onclick="upgradeCard('${cardId}')">İnkişaf Etdir</button>
                     ` : `
@@ -415,11 +419,9 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
                 return;
             }
 
-            // Evvelki seviyyenin verdiyi rate
             const previousRate = rules[currentLevel] ? rules[currentLevel].hourly_rate_provided : 0;
             const rateIncrease = nextLevelRule.hourly_rate_provided - previousRate;
 
-            // Transaction
             await userCoinRef.set(firebase.database.ServerValue.increment(-nextLevelRule.cost));
             await userCardRef.update({ level: currentLevel + 1 });
             await userStatsRef.set(firebase.database.ServerValue.increment(rateIncrease));
@@ -430,7 +432,7 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
             console.error("Upgrade error: ", error);
             alert("Xəta baş verdi. Zəhmət olmasa, yenidən cəhd edin.");
         } finally {
-            initializeMiningPage(); // Neticeni gostermek uchun sehifeni yenile
+            initializeMiningPage();
         }
 	}
 	    async function fetchMiningLeaderboard() { 
@@ -467,7 +469,7 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
                             <img src="${photoURL}" class="leaderboard-avatar">
                             <span><b>#${index + 1}</b> ${displayName}</span>
                         </div>
-                        <span>${user.totalRate} hourly_rate/saat</span>
+                        <span>${user.totalRate} /saat</span>
                     </li>`;
             });
             
@@ -558,11 +560,6 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--car
             if (gemEl) gemEl.textContent = snapshot.val()?.amount || 0;
         });
         
-        listeners['mining_stats'] = db.ref('user_mining_stats/' + uid).on('value', snapshot => {
-            const rate = snapshot.val()?.totalRate || 0;
-            const headerRateEl = document.getElementById('header-rate-balance');
-            if(headerRateEl) headerRateEl.textContent = rate;
-        });
     }
 
     function detachAllListeners() {
