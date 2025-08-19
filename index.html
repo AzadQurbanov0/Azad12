@@ -1,426 +1,579 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        :root {
-            --bg-dark: #0f0c29;
-            --bg-medium: #24243e;
-            --bg-light: #302b63;
-            --card: rgba(255, 255, 255, 0.05);
-            --glass: rgba(255, 255, 255, 0.1);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --text-light: #f8fafc;
-            --text-muted: #a9a9a9;
-            --accent-purple: #8b5cf6;
-            --accent-blue: #3b82f6;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
-            --accent-yellow: #f59e0b;
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, var(--bg-dark), var(--bg-light));
-            color: var(--text-light);
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column; /* Mobil üçün default */
-        }
-		        .sidebar {
-            width: 100%; /* Mobil üçün tam en */
-            background-color: var(--bg-medium);
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color); /* Mobil üçün alt xətt */
-        }
-        .sidebar-header {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            padding-bottom: 15px;
-        }
-        .sidebar-header .fa-shield-halved {
-            color: var(--accent-purple);
-        }
-        .nav-menu {
-            display: flex; /* Mobil üçün yan-yana */
-            justify-content: center;
-            gap: 10px;
-        }
-        .nav-menu a {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .nav-menu a:hover {
-            background-color: var(--glass);
-            color: var(--text-light);
-        }
-        .nav-menu a.active {
-            background-color: var(--accent-purple);
-            color: white;
-        }
-        .nav-menu a i {
-            margin-right: 8px;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-            width: 100%;
-        }
-        .page { display: none; }
-        .page.active { display: block; }
-        .page-header {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-		}
-		        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* Mobil üçün tək sütun */
-            gap: 15px;
-        }
-        .stat-card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .stat-card .icon { font-size: 2rem; }
-        .stat-card .icon.users { color: var(--accent-purple); }
-        .stat-card .icon.coins { color: var(--accent-yellow); }
-        .stat-card .icon.gems { color: var(--accent-blue); }
-        .stat-card .info .title { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px; }
-        .stat-card .info .value { font-size: 1.5rem; font-weight: bold; }
-        
-        .toolbar { margin-bottom: 20px; }
-        .search-bar { width: 100%; padding: 12px; background-color: var(--card); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-light); font-size: 1rem; }
-        .user-table-wrapper { overflow-x: auto; }
-        .user-table { width: 100%; border-collapse: collapse; }
-        .user-table th, .user-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .user-table .user-info-cell { display: flex; align-items: center; gap: 10px; }
-        .user-table .user-info-cell img { width: 40px; height: 40px; border-radius: 50%; }
-
-        .card-management-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .form-container, .list-container { background: var(--card); padding: 20px; border-radius: 12px; }
-        .form-container h2, .list-container h2 { margin-bottom: 20px; color: var(--accent-purple); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; color: var(--text-muted); margin-bottom: 5px; font-size: 0.9rem; }
-        .form-group input { width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-light); font-size: 1rem; }
-        
-        .existing-card { display: flex; align-items: center; justify-content: space-between; background: var(--glass); padding: 15px; border-radius: 8px; margin-bottom: 10px; }
-        .existing-card-info { display: flex; align-items: center; gap: 15px; }
-        .existing-card-icon { font-size: 2rem; }
-        .delete-card-btn { background: transparent; border: none; color: var(--accent-red); font-size: 1.2rem; cursor: pointer; }
-		        .btn { padding: 10px 18px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .btn-primary { background-color: var(--accent-blue); color: white; }
-        .btn-green { background-color: var(--accent-green); color: white; }
-        .btn-red { background-color: var(--accent-red); color: white; }
-        .btn-yellow { background-color: var(--accent-yellow); color: var(--bg-dark); }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-        .modal-content { background-color: var(--bg-medium); padding: 20px; border-radius: 15px; border: 1px solid var(--border-color); width: 100%; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .close-modal { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
-        .modal-section { margin-bottom: 20px; }
-        .modal-section h3 { margin-bottom: 10px; color: var(--accent-purple); }
-        .info-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        .info-grid p { background: var(--card); padding: 8px; border-radius: 6px; word-break: break-all; }
-        .action-group { display: flex; flex-wrap: wrap; gap: 10px; }
-        .action-group input { flex-grow: 1; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-light); }
-
-        /* Geniş Ekranlar üçün (Desktop) */
-        @media (min-width: 768px) {
-            body {
-                flex-direction: row;
-            }
-            .sidebar {
-                width: 260px;
-                height: 100vh;
-                padding: 20px;
-                border-bottom: none;
-                border-right: 1px solid var(--border-color);
-            }
-            .nav-menu {
-                flex-direction: column;
-                gap: 0;
-            }
-            .main-content {
-                padding: 30px;
-            }
-            .stats-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            }
-            .card-management-layout {
-                grid-template-columns: 1fr 1.5fr;
-            }
-            .info-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Kasası</title>
+<style>
+:root {
+  --bg1: #0f0c29; --bg2: #302b63; --bg3: #24243e;
+  --card: rgba(255,255,255,0.06); --glass: rgba(255,255,255,0.12);
+  --text: #f8fafc; --text-muted: #a9a9a9;
+  --accent: #22c55e; --red: #dc2626; --blue: #3b82f6; --purple: #8b5cf6; --diamond: #38bdf8;
+  --yellow: #f59e0b;
+  --blue-darker: #2563eb;
+  --border-color: rgba(255,255,255,0.1);
+}
+[data-theme="light"] {
+  --bg1: #f0f2f5; --bg2: #e4e6eb; --bg3: #dcdfe4;
+  --card: rgba(255,255,255,0.8); --glass: rgba(0,0,0,0.05);
+  --text: #1c1e21; --text-muted: #606770;
+  --border-color: rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial,'Apple Color Emoji','Segoe UI Emoji';
+  color: var(--text); background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  min-height: 100vh; overflow-y: auto; padding-top: 70px; padding-bottom: 70px;
+  transition: background-color 0.3s, color 0.3s;
+}
+.wrap{display:grid;place-items:center;gap:12px;text-align:center;padding:20px;}
+.user-info{font-size:1rem;font-weight:600;opacity:.9;margin-bottom:6px; display:flex; align-items:center; gap: 10px;}
+.settings-icon { font-size: 1.5rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s, transform 0.2s; }
+.settings-icon:hover { opacity: 1; transform: rotate(45deg); }
+.card{
+  position:relative; width:min(60vw,320px); aspect-ratio:1/1; display:grid; place-items:center;
+  background: radial-gradient(60% 60% at 50% 30%,var(--glass),transparent 70%),var(--card);
+  border:1px solid var(--border-color); border-radius:24px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.35), inset 0 1px 0 var(--border-color);
+  backdrop-filter:blur(6px); transition: background-color 0.3s, border 0.3s;
+}
+.bag{font-size:clamp(5rem,18vw,12rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.balance{margin-top:10px;display:grid;place-items:center;font-weight:700;letter-spacing:1px;text-shadow:0 2px 5px rgba(0,0,0,0.5);}
+.balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem);opacity:.9;margin-right:4px;}
+.balance .value{font-size:clamp(1.5rem,5vw,2.5rem);line-height:1;}
+.google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600;}
+#notification-bell { position: fixed; top: 15px; left: 20px; font-size: 28px; cursor: pointer; user-select: none; z-index: 1000; }
+#status-icon { position: fixed; top: 15px; left: 60px; font-size: 28px; cursor: pointer; user-select: none; z-index: 1000; }
+#notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+.modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
+.modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color: var(--text); width: min(90vw, 350px); max-height: 90vh; display: flex; flex-direction: column; }
+.modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
+.content-wrapper { display:flex; flex-direction:column; flex-grow:1; opacity: 1; visibility: visible; transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; width:100%; }
+footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 5px 0; z-index: 1001; border-top: 1px solid var(--border-color); }
+.nav-item { color: var(--text); text-decoration: none; text-align: center; font-size: 0.75rem; padding: 8px 12px; border-radius: 8px; transition: background 0.2s ease; cursor:pointer;}
+.nav-item span { font-size: 1.5rem; display: block; }
+.nav-item.active { background: rgba(255,255,255,0.2); font-weight: bold; }
+.page { display: none; width: 100%; max-width: 500px; padding: 15px; animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.page.active { display: block; }
+#main-page.active { display: flex; flex-grow: 1; align-items: center; justify-content: center; }
+.page-header { font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
+#top-header { position: fixed; top: 0; left: 0; width: 100%; background: var(--card); backdrop-filter: blur(10px); z-index: 1001; padding: 10px 15px; display: none; justify-content: space-around; align-items: center; border-bottom: 1px solid var(--border-color); }
+.header-balance { display: flex; align-items: center; gap: 5px; font-weight: 600; font-size: 0.9rem; }
+.header-balance span { font-size: 1.2rem; }
+.page-list ul { list-style: none; padding: 0; width: 100%; }
+.page-list li { background: var(--glass); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; font-size: 1rem; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
+.leaderboard-item-user { display: flex; align-items: center; gap: 10px; flex-grow: 1; text-align: left; }
+.leaderboard-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;}
+.task-card { background: var(--card); border-left: 4px solid var(--purple); border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+.task-header { display: flex; justify-content: space-between; align-items: center; }
+.task-title { font-size: 1.1rem; font-weight: 600; }
+.task-reward { font-weight: bold; color: var(--diamond); }
+.task-description { font-size: 0.9rem; color: var(--text-muted); text-align: left; }
+.task-button { padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+.task-button.do { background-color: var(--purple); color: white; }
+.task-button.pending { background-color: var(--yellow); color: var(--bg1); cursor: not-allowed; }
+.task-button.completed { background-color: var(--accent); color: var(--bg1); cursor: not-allowed; }
+.settings-card { width: 100%; padding: 20px; margin-bottom: 15px; background: var(--card); border: 1px solid var(--border-color); border-radius: 12px; }
+.accordion { background-color: var(--card); color: var(--text); cursor: pointer; padding: 18px; width: 100%; border: none; text-align: left; outline: none; font-size: 1rem; font-weight: 600; transition: background-color 0.3s ease; border-radius: 8px; margin-bottom: 10px; }
+.panel { padding: 0 18px; background-color: transparent; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 10px; }
+.panel p { margin: 15px 0; line-height: 1.6; opacity: 0.9; }
+/* YENI MINIK SEHIFESI UCUN STILLER */
+.mining-card { background: var(--card); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: center; }
+.mining-card-image { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin: 0 auto 10px; }
+.mining-card h3 { font-size: 1.2rem; margin-bottom: 10px; }
+.mining-card-stats { display: flex; justify-content: space-around; margin-bottom: 15px; font-size: 0.9rem; }
+.mining-card-level { font-weight: bold; }
+.mining-card-rate { color: var(--accent); font-weight: bold; }
+.upgrade-info { font-size: 0.85rem; background: var(--glass); padding: 8px; border-radius: 6px; margin-bottom: 15px; }
+.btn-upgrade { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; background: var(--blue); color: white; transition: background-color 0.2s; }
+.btn-upgrade:disabled { background-color: var(--text-muted); cursor: not-allowed; }
+</style>
 </head>
 <body>
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <i class="fa-solid fa-shield-halved"></i> ADMIN
-        </div>
-        <div class="nav-menu">
-            <a href="#dashboard" class="nav-link active"><i class="fa-solid fa-house-user"></i> Ana Səhifə</a>
-            <a href="#users" class="nav-link"><i class="fa-solid fa-users"></i> İstifadəçilər</a>
-            <a href="#card-management" class="nav-link"><i class="fa-solid fa-layer-group"></i> Kartlar</a>
-        </div>
-    </nav>
-    <main class="main-content">
-        <div id="dashboard" class="page active">
-            <h1 class="page-header">İdarəetmə Paneli</h1>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="icon users"><i class="fa-solid fa-users"></i></div>
-                    <div class="info">
-                        <div class="title">Cəmi İstifadəçilər</div>
-                        <div class="value" id="total-users-stat">0</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon coins"><i class="fa-solid fa-coins"></i></div>
-                    <div class="info">
-                        <div class="title">Dövriyyədəki Coin</div>
-                        <div class="value" id="total-coins-stat">0</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon gems"><i class="fa-solid fa-gem"></i></div>
-                    <div class="info">
-                        <div class="title">Dövriyyədəki Almaz</div>
-                        <div class="value" id="total-gems-stat">0</div>
-                    </div>
-                </div>
-            </div>
-		</div>
-          <div id="users" class="page">
-            <h1 class="page-header">İstifadəçilərin Siyahısı</h1>
-            <div class="toolbar">
-                <input type="text" id="user-search" class="search-bar" placeholder="İstifadəçini axtar...">
-            </div>
-            <div class="user-table-wrapper">
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>İstifadəçi</th>
-                            <th>Email</th>
-                            <th>Coin</th>
-                            <th>Hərəkətlər</th>
-                        </tr>
-                    </thead>
-                    <tbody id="user-table-body"></tbody>
-                </table>
-            </div>
-        </div>
+	<div id="top-header">
+    <div class="header-balance">hourly_rate<span id="header-rate-balance">0</span></div>
+    <div class="header-balance">🪙<span id="header-coin-balance">0</span></div>
+    <div class="header-balance">💎<span id="header-gem-balance">0</span></div>
+</div>
 
-        <div id="card-management" class="page">
-            <h1 class="page-header">Kart İdarəetməsi</h1>
-            <div class="card-management-layout">
-                <div class="form-container">
-                    <h2>Yeni Kart Yarat</h2>
-                    <div class="form-group">
-                        <label for="card-id">Kart ID (boşluqsuz, məs: pilot_kart)</label>
-                        <input type="text" id="card-id" placeholder="pilot_kart">
-                    </div>
-                    <div class="form-group">
-                        <label for="card-name">Kartın Adı</label>
-                        <input type="text" id="card-name" placeholder="Pilot Təyyarəsi">
-                    </div>
-                    <div class="form-group">
-                        <label for="card-icon">Kartın İkonu (Emoji ✈️)</label>
-                        <input type="text" id="card-icon" placeholder="✈️">
-                    </div>
-                    <div class="form-group">
-                        <label for="card-price">Qiyməti (Coin)</label>
-                        <input type="number" id="card-price" placeholder="1000">
-                    </div>
-                    <div class="form-group">
-                        <label for="card-rate">Saatlıq Qazanc</label>
-                        <input type="number" id="card-rate" placeholder="25">
-                    </div>
-                    <button id="add-card-btn" class="btn btn-primary">Kartı Əlavə Et</button>
-                </div>
-                <div class="list-container">
-                    <h2>Mövcud Kartlar</h2>
-                    <div id="existing-cards-list"></div>
+<div class="content-wrapper">
+    <div id="notification-bell" style="display:none;"><span>🔔</span><div id="notification-badge" style="display:none;"></div></div>
+    <div id="status-icon" style="display:none;"><span>ℹ️</span></div>
+
+    <div id="main-page" class="page active">
+        <main class="wrap">
+            <div id="userInfo" class="user-info">
+                <span id="user-greeting"></span>
+                <span class="settings-icon" id="settingsBtn" style="display: none;">⚙️</span>
+            </div>
+            <div class="card">
+                <div class="bag" id="main-bag-icon">🪙</div>
+                <div class="balance">
+                    <span id="balance" class="value">0.00</span>
+                    <span class="symbol">COIN</span>
                 </div>
             </div>
-        </div>
-	</main>
-     <div id="user-detail-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-user-name">İstifadəçi Məlumatları</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-section">
-                    <h3><i class="fa-solid fa-circle-info"></i> Ümumi Məlumat</h3>
-                    <div class="info-grid">
-                        <p><strong>Email:</strong> <span id="modal-user-email"></span></p>
-                        <p><strong>UID:</strong> <span id="modal-user-uid"></span></p>
-                    </div>
-                </div>
-                <div class="modal-section">
-                    <h3><i class="fa-solid fa-wallet"></i> Balans İdarəetməsi</h3>
-                    <div class="action-group">
-                        <input type="number" id="balance-amount-input" placeholder="Miqdar">
-                        <button id="add-coins-btn" class="btn btn-green"><i class="fa-solid fa-plus"></i> Coin</button>
-                        <button id="remove-coins-btn" class="btn btn-yellow"><i class="fa-solid fa-minus"></i> Coin</button>
-                    </div>
-                </div>
-                <div class="modal-section">
-                    <h3><i class="fa-solid fa-ban"></i> Hesab Hərəkətləri</h3>
-                    <div class="action-group">
-                        <button id="delete-user-btn" class="btn btn-red">Hesabı Sil</button>
-                    </div>
-                </div>
-            </div>
+            <button class="google-btn" id="loginBtn">🌐 Giriş</button>
+        </main>
+	</div>
+     <div id="leaderboard-page" class="page">
+        <h2 class="page-header">Saat Karı Sıralaması</h2>
+        <div id="leaderboard-list" class="page-list">
+            <ul></ul>
         </div>
     </div>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
-	    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw",
-            authDomain: "niceuc-e5986.firebaseapp.com",
-            databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com",
-            projectId: "niceuc-e5986",
-            appId: "1:242221260650:web:d140153a2167c4738dcf13"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        let allUsersData = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAllData();
-            loadGameCards();
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                    showPage(link.getAttribute('href').substring(1));
-                });
+    <div id="tasks-page" class="page">
+        <h2 class="page-header">Tapşırıqlar</h2>
+        <div id="tasks-container">
+            <p style="text-align:center; color: var(--text-muted);">Yüklənir...</p>
+        </div>
+	</div>
+     <div id="mining-page" class="page">
+        <h2 class="page-header">Minik</h2>
+        <div id="mining-cards-container">
+            <p style="text-align:center; color: var(--text-muted);">Kartlar yüklənir...</p>
+        </div>
+    </div>
+
+    <div id="settings-page" class="page">
+        <h2 class="page-header">Ayarlar</h2>
+        <div class="settings-card profile-section">
+            <img id="user-avatar" src="https://i.imgur.com/3YQ5h0Q.png" alt="Avatar" class="profile-avatar">
+            <h3 id="user-display-name">Yüklənir...</h3>
+            <p id="user-email">Yüklənir...</p>
+        </div>
+        <div class="settings-card settings-section">
+            <div class="setting-item" id="help-section-in-settings" style="cursor: pointer;"><span>Kömək və Məlumat</span><span>></span></div>
+            <div class="setting-item"><span>Versiya</span><span>3.0.0</span></div>
+        </div>
+        <div class="settings-card danger-zone">
+            <button id="logoutBtn" class="btn-logout">Çıxış Et</button>
+        </div>
+	</div>
+     <div id="help-page" class="page">
+        <h2 class="page-header">Kömək</h2>
+        <button class="accordion">"Coin Kasası" nədir?</button>
+        <div class="panel"><p>Bu, istifadəçilərin tapşırıqlar edərək və "Minik" sistemində kartları inkişaf etdirərək virtual coin qazandığı bir əyləncə platformasıdır.</p></div>
+        <button class="accordion">"Minik" nədir və "Saat Karı" nə deməkdir?</button>
+        <div class="panel"><p>"Minik" bölməsində kartları coin ilə inkişaf etdirə bilərsiniz. Hər kartın səviyyəsi artdıqca, sizin ümumi "Saat Karı"nız artır. "Saat Karı" sizin hər saat offline olsanız belə avtomatik qazanacağınız coin miqdarıdır.</p></div>
+        <button class="accordion">Necə daha çox coin qazana bilərəm?</button>
+        <div class="panel"><p>"Tapşırıqlar" bölməsindəki tapşırıqları yerinə yetirərək və ya "Minik" bölməsindəki kartların səviyyəsini artıraraq "Saat Karı"nızı yüksəldərək daha çox coin qazana bilərsiniz.</p></div>
+    </div>
+
+    <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Elanlar</h3><div id="announcements-container"></div><button class="close-modal-btn">Bağla</button></div></div>
+    <div class="modalOverlay" id="statusModal"><div class="modalContent"><h3>Sistem Vəziyyəti</h3><div id="status-list"><p>Məlumatlar yüklənir...</p></div><button class="close-modal-btn">Bağla</button></div></div>
+    <div class="modalOverlay" id="offline-earning-modal">
+        <div class="modalContent">
+            <h3>Xoş Gəldiniz!</h3>
+            <p>Siz oyunda olmadığınız müddətdə <b id="earned-amount">0</b> 🪙 coin qazandınız!</p>
+            <button class="close-modal-btn">Əla!</button>
+        </div>
+    </div>
+
+</div>
+<footer>
+    <a class="nav-item active" id="homeBtn"><span>🏠</span>Əsas</a>
+    <a class="nav-item" id="leaderboardBtn"><span>🏅</span>Liderlər</a>
+    <a class="nav-item" id="miningBtn"><span>⛏️</span>Minik</a>
+    <a class="nav-item" id="tasksBtn"><span>🎯</span>Tapşırıqlar</a>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+<script>
+    const firebaseConfig = { apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw", authDomain: "niceuc-e5986.firebaseapp.com", databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com", projectId: "niceuc-e5986", appId: "1:242221260650:web:d140153a2167c4738dcf13" };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    
+    let listeners = {};
+    let displayedCoinBalance = 0;
+	    auth.onAuthStateChanged(user => {
+        const topHeader = document.getElementById('top-header');
+        const settingsBtn = document.getElementById('settingsBtn');
+        if (user) {
+            // Yeni istifadeci yoxlanisi ve baslangic bonuslar
+            db.ref('user_coins/' + user.uid).once('value', snapshot => {
+                if (!snapshot.exists()) {
+                    db.ref('user_coins/' + user.uid).set({ amount: 5000 });
+                    db.ref('user_mining_stats/' + user.uid).set({ totalRate: 0 });
+                }
             });
-            document.querySelector('.close-modal').addEventListener('click', () => document.getElementById('user-detail-modal').style.display = 'none');
-            document.getElementById('user-search').addEventListener('input', (e) => renderUserTable(e.target.value.toLowerCase()));
-            document.getElementById('add-card-btn').addEventListener('click', addGameCard);
+            
+            checkOfflineEarnings(user.uid);
+
+            document.getElementById('user-greeting').textContent = `Salam, ${user.displayName}`;
+            document.getElementById('loginBtn').style.display = 'none';
+            settingsBtn.style.display = 'inline-block';
+            topHeader.style.display = 'flex';
+            
+            db.ref('users/' + user.uid).update({ displayName: user.displayName, email: user.email, photoURL: user.photoURL });
+            
+            attachAllListeners(user.uid);
+            
+        } else {
+            document.getElementById('user-greeting').textContent = 'Xoş Gəlmisiniz!';
+            document.getElementById('loginBtn').style.display = 'flex';
+            settingsBtn.style.display = 'none';
+            topHeader.style.display = 'none';
+            document.getElementById('balance').textContent = '0.00';
+            displayedCoinBalance = 0;
+            detachAllListeners();
+        }
+    });
+
+    async function checkOfflineEarnings(uid) {
+        const statsRef = db.ref(`user_mining_stats/${uid}`);
+        const snapshot = await statsRef.once('value');
+        const stats = snapshot.val() || { totalRate: 0 };
+        const lastLogin = stats.lastLogin || Date.now();
+        const totalRate = stats.totalRate || 0;
+        
+        const now = Date.now();
+        const diffHours = (now - lastLogin) / (1000 * 60 * 60);
+
+        // 3 saatdan chox offlinedirsa
+        if (diffHours > 3 && totalRate > 0) {
+            const earnedAmount = Math.floor(diffHours * totalRate);
+            if (earnedAmount > 0) {
+                await db.ref(`user_coins/${uid}/amount`).set(firebase.database.ServerValue.increment(earnedAmount));
+                document.getElementById('earned-amount').textContent = earnedAmount.toLocaleString();
+                document.getElementById('offline-earning-modal').style.display = 'flex';
+            }
+        }
+        
+        // Son girishi yenile
+        await statsRef.update({ lastLogin: now });
+	}
+	    function switchPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+
+        switch (pageId) {
+            case 'main-page':
+                document.getElementById('homeBtn').classList.add('active');
+                break;
+            case 'leaderboard-page':
+                document.getElementById('leaderboardBtn').classList.add('active');
+                fetchMiningLeaderboard();
+                break;
+            case 'mining-page':
+                document.getElementById('miningBtn').classList.add('active');
+                initializeMiningPage();
+                break;
+            case 'tasks-page':
+                document.getElementById('tasksBtn').classList.add('active');
+                initializeTasksPage();
+                break;
+            case 'settings-page':
+                initializeSettingsPage();
+                break;
+        }
+    }
+
+    document.getElementById('homeBtn').addEventListener('click', () => switchPage('main-page'));
+    document.getElementById('leaderboardBtn').addEventListener('click', () => switchPage('leaderboard-page'));
+    document.getElementById('miningBtn').addEventListener('click', () => switchPage('mining-page'));
+    document.getElementById('tasksBtn').addEventListener('click', () => switchPage('tasks-page'));
+    document.getElementById('settingsBtn').addEventListener('click', () => switchPage('settings-page'));
+    document.getElementById('help-section-in-settings').addEventListener('click', () => switchPage('help-page'));
+
+    document.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.closest('.modalOverlay').style.display = 'none';
+        });
+    });
+
+    const accordions = document.getElementsByClassName("accordion");
+    for (let i = 0; i < accordions.length; i++) {
+        accordions[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            const panel = this.nextElementSibling;
+            if (panel.style.maxHeight) {
+                panel.style.maxHeight = null;
+            } else {
+                panel.style.maxHeight = panel.scrollHeight + "px";
+            }
+        });
+    }
+
+    function initializeSettingsPage() {
+        const user = auth.currentUser;
+        if (!user) return;
+        document.getElementById('user-avatar').src = user.photoURL || 'https://i.imgur.com/3YQ5h0Q.png';
+        document.getElementById('user-display-name').textContent = user.displayName;
+        document.getElementById('user-email').textContent = user.email;
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => { 
+        if(confirm("Hesabdan çıxmaq istədiyinizə əminsiniz?")) {
+            auth.signOut().then(() => { 
+                switchPage('main-page'); 
+            }); 
+        } 
+    });
+	    async function initializeMiningPage() {
+        const container = document.getElementById('mining-cards-container');
+        const user = auth.currentUser;
+        if (!user) {
+            container.innerHTML = '<p>Zəhmət olmasa, giriş edin.</p>';
+            return;
+        }
+        container.innerHTML = '<p>Kartlar yüklənir...</p>';
+
+        const [cardsSnapshot, userCardsSnapshot, rulesSnapshot] = await Promise.all([
+            db.ref('/mining_cards').once('value'),
+            db.ref(`/user_cards/${user.uid}`).once('value'),
+            db.ref('/card_level_rules').once('value')
+        ]);
+
+        if (!cardsSnapshot.exists()) {
+            container.innerHTML = '<p>Aktiv minik kartı tapılmadı.</p>';
+            return;
+        }
+
+        let html = '';
+        const userCards = userCardsSnapshot.val() || {};
+        const rules = rulesSnapshot.val() || {};
+
+        cardsSnapshot.forEach(cardSnapshot => {
+            const cardId = cardSnapshot.key;
+            const cardData = cardSnapshot.val();
+            const userCardData = userCards[cardId] || { level: 0 };
+            const currentLevel = userCardData.level;
+            
+            const cardRules = rules[cardId] || {};
+            const currentLevelRule = cardRules[currentLevel] || { hourly_rate_provided: 0 };
+            const nextLevelRule = cardRules[currentLevel + 1];
+
+            html += `
+                <div class="mining-card">
+                    <img src="${cardData.imageUrl}" alt="${cardData.name}" class="mining-card-image">
+                    <h3>${cardData.name}</h3>
+                    <div class="mining-card-stats">
+                        <span class="mining-card-level">Səviyyə: ${currentLevel}</span>
+                        <span class="mining-card-rate">+${currentLevelRule.hourly_rate_provided} hourly_rate/saat</span>
+                    </div>
+                    ${nextLevelRule ? `
+                        <div class="upgrade-info">
+                            Növbəti Səviyyə (+${nextLevelRule.hourly_rate_provided} hourly_rate/s) üçün qiymət: <b>${nextLevelRule.cost} 🪙</b>
+                        </div>
+                        <button class="btn-upgrade" onclick="upgradeCard('${cardId}')">İnkişaf Etdir</button>
+                    ` : `
+                        <div class="upgrade-info">Maksimum səviyyəyə çatılıb!</div>
+                        <button class="btn-upgrade" disabled>Maksimum</button>
+                    `}
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    async function upgradeCard(cardId) {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const upgradeButton = event.target;
+        upgradeButton.disabled = true;
+        upgradeButton.textContent = 'Yoxlanılır...';
+
+        const userCardRef = db.ref(`/user_cards/${user.uid}/${cardId}`);
+        const rulesRef = db.ref(`/card_level_rules/${cardId}`);
+        const userCoinRef = db.ref(`/user_coins/${user.uid}/amount`);
+        const userStatsRef = db.ref(`/user_mining_stats/${user.uid}/totalRate`);
+
+        try {
+            const [userCardSnapshot, rulesSnapshot, coinSnapshot] = await Promise.all([
+                userCardRef.once('value'),
+                rulesRef.once('value'),
+                userCoinRef.once('value')
+            ]);
+
+            const userCard = userCardSnapshot.val() || { level: 0 };
+            const rules = rulesSnapshot.val();
+            const currentCoins = coinSnapshot.val() || 0;
+            const currentLevel = userCard.level;
+            
+            const nextLevelRule = rules[currentLevel + 1];
+
+            if (!nextLevelRule) {
+                alert("Bu kart artıq maksimum səviyyədədir.");
+                return;
+            }
+
+            if (currentCoins < nextLevelRule.cost) {
+                alert("Kifayət qədər coin yoxdur!");
+                initializeMiningPage(); // sehifeni yenile
+                return;
+            }
+
+            // Evvelki seviyyenin verdiyi rate
+            const previousRate = rules[currentLevel] ? rules[currentLevel].hourly_rate_provided : 0;
+            const rateIncrease = nextLevelRule.hourly_rate_provided - previousRate;
+
+            // Transaction
+            await userCoinRef.set(firebase.database.ServerValue.increment(-nextLevelRule.cost));
+            await userCardRef.update({ level: currentLevel + 1 });
+            await userStatsRef.set(firebase.database.ServerValue.increment(rateIncrease));
+            
+            alert(`${rules.cardName || 'Kart'} uğurla ${currentLevel + 1}-ci səviyyəyə yüksəldi!`);
+
+        } catch (error) {
+            console.error("Upgrade error: ", error);
+            alert("Xəta baş verdi. Zəhmət olmasa, yenidən cəhd edin.");
+        } finally {
+            initializeMiningPage(); // Neticeni gostermek uchun sehifeni yenile
+        }
+	}
+	    async function fetchMiningLeaderboard() { 
+        const listContainer = document.getElementById('leaderboard-list');
+        listContainer.innerHTML = "<ul><li>Yüklənir...</li></ul>"; 
+        
+        try {
+            const statsSnapshot = await db.ref('user_mining_stats').orderByChild('totalRate').limitToLast(50).once('value'); 
+            
+            if (!statsSnapshot.exists()) {
+                listContainer.innerHTML = "<ul><li>Sıralama üçün kifayət qədər istifadəçi yoxdur.</li></ul>";
+                return;
+            }
+            
+            let users = [];
+            statsSnapshot.forEach(child => {
+                users.push({ uid: child.key, ...child.val() });
+            });
+            
+            users.sort((a, b) => b.totalRate - a.totalRate); 
+            
+            const userInfoPromises = users.map(user => db.ref(`users/${user.uid}`).once('value'));
+            const usersInfoSnapshots = await Promise.all(userInfoPromises);
+            
+            let listHTML = '<ul>';
+            users.forEach((user, index) => {
+                const userData = usersInfoSnapshots[index].val() || {};
+                const photoURL = userData.photoURL || 'https://i.imgur.com/3YQ5h0Q.png';
+                const displayName = userData.displayName || "Naməlum";
+                
+                listHTML += `
+                    <li>
+                        <div class="leaderboard-item-user">
+                            <img src="${photoURL}" class="leaderboard-avatar">
+                            <span><b>#${index + 1}</b> ${displayName}</span>
+                        </div>
+                        <span>${user.totalRate} hourly_rate/saat</span>
+                    </li>`;
+            });
+            
+            listHTML += '</ul>';
+            listContainer.innerHTML = listHTML;
+        } catch (error) {
+            console.error("Leaderboard error:", error);
+            listContainer.innerHTML = "<ul><li>Liderlər cədvəlini yükləmək mümkün olmadı.</li></ul>";
+        }
+		}
+	    async function initializeTasksPage() {
+        const tasksContainer = document.getElementById('tasks-container');
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const [tasksSnapshot, submissionsSnapshot] = await Promise.all([
+            db.ref('/tasks').once('value'),
+            db.ref(`/task_submissions/${user.uid}`).once('value')
+        ]);
+
+        if (!tasksSnapshot.exists()) {
+            tasksContainer.innerHTML = "<p>Hazırda aktiv tapşırıq yoxdur.</p>";
+            return;
+        }
+
+        let tasksHTML = '';
+        const submissions = submissionsSnapshot.val() || {};
+        tasksSnapshot.forEach(taskSnapshot => {
+            const taskId = taskSnapshot.key;
+            const task = taskSnapshot.val();
+            const status = submissions[taskId]?.status || 'new';
+
+            let btnHTML;
+            switch (status) {
+                case 'pending':
+                    btnHTML = `<button class="task-button pending" disabled>Yoxlanılır</button>`;
+                    break;
+                case 'completed':
+                    btnHTML = `<button class="task-button completed" disabled>Tamamlandı</button>`;
+                    break;
+                default:
+                    btnHTML = `<button class="task-button do" onclick="doTask('${taskId}', '${task.link}')">Tapşırığı Et</button>`;
+            }
+
+            let rewardIcon = '';
+            if (task.reward_type === 'gems') rewardIcon = '💎';
+            else if (task.reward_type === 'coin') rewardIcon = '🪙';
+            else rewardIcon = 'XP';
+
+            tasksHTML += `
+                <div class="task-card">
+                    <div class="task-header">
+                        <span class="task-title">${task.title}</span>
+                        <span class="task-reward">+${task.reward_amount} ${rewardIcon}</span>
+                    </div>
+                    <p class="task-description">${task.description}</p>
+                    ${btnHTML}
+                </div>`;
+        });
+        tasksContainer.innerHTML = tasksHTML;
+    }
+
+    function doTask(taskId, link) {
+        if (confirm("Bu tapşırığı etmək üçün kənar səhifəyə yönləndiriləcəksiniz. Davam edilsin?")) {
+            window.open(link, '_blank');
+            const user = auth.currentUser;
+            db.ref(`/task_submissions/${user.uid}/${taskId}`).set({
+                status: 'pending',
+                submittedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            initializeTasksPage();
+        }
+	}
+	    function attachAllListeners(uid) {
+        detachAllListeners();
+        
+        listeners['coins'] = db.ref('user_coins/' + uid).on('value', snapshot => {
+            const coinAmount = snapshot.val()?.amount || 0;
+            const coinText = Math.floor(coinAmount).toLocaleString();
+            
+            document.getElementById('balance').textContent = coinText;
+            const headerCoinEl = document.getElementById('header-coin-balance');
+            if (headerCoinEl) headerCoinEl.textContent = coinText;
         });
 
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        function loadAllData() {
-            db.ref('game_users').on('value', async (snapshot) => {
-                const usersData = snapshot.val() || {};
-                allUsersData = Object.keys(usersData).map(uid => ({ uid, ...usersData[uid] }));
-                renderUserTable();
-                updateStats();
-            });
-        }
+        listeners['gems'] = db.ref('user_gems/' + uid).on('value', snapshot => {
+            const gemEl = document.getElementById('header-gem-balance');
+            if (gemEl) gemEl.textContent = snapshot.val()?.amount || 0;
+        });
         
-        function renderUserTable(searchTerm = '') {
-            const tableBody = document.getElementById('user-table-body');
-            tableBody.innerHTML = '';
-            const filteredUsers = allUsersData.filter(user => user.displayName?.toLowerCase().includes(searchTerm) || user.email?.toLowerCase().includes(searchTerm));
-            filteredUsers.forEach(user => {
-                tableBody.innerHTML += `<tr><td><div class="user-info-cell"><img src="${user.photoURL}" alt="Avatar"><span>${user.displayName}</span></div></td><td>${user.email}</td><td>${Math.floor(user.coins || 0)}</td><td><button class="btn btn-primary" onclick="showUserDetails('${user.uid}')">Ətraflı</button></td></tr>`;
-            });
-        }
-        
-        function updateStats() {
-            document.getElementById('total-users-stat').textContent = allUsersData.length;
-            const totalCoins = allUsersData.reduce((sum, user) => sum + (user.coins || 0), 0);
-            const totalGems = allUsersData.reduce((sum, user) => sum + (user.gems || 0), 0);
-            document.getElementById('total-coins-stat').textContent = Math.floor(totalCoins);
-            document.getElementById('total-gems-stat').textContent = totalGems;
-        }
+        listeners['mining_stats'] = db.ref('user_mining_stats/' + uid).on('value', snapshot => {
+            const rate = snapshot.val()?.totalRate || 0;
+            const headerRateEl = document.getElementById('header-rate-balance');
+            if(headerRateEl) headerRateEl.textContent = rate;
+        });
+    }
 
-        async function showUserDetails(uid) {
-            const user = allUsersData.find(u => u.uid === uid);
-            if (!user) return;
-            document.getElementById('modal-user-name').textContent = user.displayName;
-            document.getElementById('modal-user-email').textContent = user.email;
-            document.getElementById('modal-user-uid').textContent = uid;
-            document.getElementById('add-coins-btn').onclick = () => updateUserBalance(uid, 'coins', true);
-            document.getElementById('remove-coins-btn').onclick = () => updateUserBalance(uid, 'coins', false);
-            document.getElementById('delete-user-btn').onclick = () => deleteUser(uid);
-            document.getElementById('user-detail-modal').style.display = 'flex';
-        }
-
-        async function updateUserBalance(uid, currency, isAdding) {
-            const amount = parseFloat(document.getElementById('balance-amount-input').value);
-            if (isNaN(amount) || amount <= 0) return alert("Düzgün miqdar daxil edin.");
-            const finalAmount = isAdding ? amount : -amount;
-            await db.ref(`game_users/${uid}/${currency}`).set(firebase.database.ServerValue.increment(finalAmount));
-            alert(`Balans yeniləndi.`);
-            document.getElementById('balance-amount-input').value = '';
-        }
-
-        function deleteUser(uid) {
-            if (confirm("Bu istifadəçini silmək istədiyinizə əminsiniz?")) {
-                db.ref(`game_users/${uid}`).remove().then(() => {
-                    alert("İstifadəçi silindi.");
-                    document.getElementById('user-detail-modal').style.display = 'none';
-                });
+    function detachAllListeners() {
+        for (const key in listeners) {
+            if (listeners[key]) {
+                db.ref(listeners[key].path).off('value', listeners[key].callback);
             }
         }
+        listeners = {};
+    }
 
-        function loadGameCards() {
-            db.ref('game_cards').on('value', (snapshot) => {
-                const cards = snapshot.val() || {};
-                const listContainer = document.getElementById('existing-cards-list');
-                listContainer.innerHTML = '';
-                Object.keys(cards).forEach(cardId => {
-                    const card = cards[cardId];
-                    listContainer.innerHTML += `<div class="existing-card"><div class="existing-card-info"><div class="existing-card-icon">${card.icon}</div><div><strong>${card.name}</strong><br><span>+${card.rate} coin/saat</span></div></div><button class="delete-card-btn" onclick="deleteGameCard('${cardId}')"><i class="fa-solid fa-trash"></i></button></div>`;
-                });
-            });
-        }
-
-        async function addGameCard() {
-            const cardId = document.getElementById('card-id').value.trim();
-            const cardName = document.getElementById('card-name').value.trim();
-            const cardIcon = document.getElementById('card-icon').value.trim();
-            const cardPrice = parseInt(document.getElementById('card-price').value);
-            const cardRate = parseInt(document.getElementById('card-rate').value);
-            if (!cardId || !cardName || !cardIcon || isNaN(cardPrice) || isNaN(cardRate)) return alert("Bütün xanaları doldurun.");
-            await db.ref(`game_cards/${cardId}`).set({ name: cardName, icon: cardIcon, price: cardPrice, rate: cardRate });
-            alert(`'${cardName}' kartı yaradıldı!`);
-            ['card-id', 'card-name', 'card-icon', 'card-price', 'card-rate'].forEach(id => document.getElementById(id).value = '');
-        }
-
-        function deleteGameCard(cardId) {
-            if (confirm(`'${cardId}' kartını silmək istədiyinizə əminsiniz?`)) {
-                db.ref(`game_cards/${cardId}`).remove();
-            }
-        }
-    </script>
+</script>
 </body>
 </html>
