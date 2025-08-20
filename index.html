@@ -6,207 +6,142 @@
 <title>Para Tıklama Oyunu</title>
 <style>
 :root {
-  --bg1: #0f0c29; --bg2: #302b63; --bg3: #24243e;
+  --bg1: #1e1c45; --bg2: #2f2c61; --bg3: #1a1936;
   --card: rgba(255,255,255,0.06); --glass: rgba(255,255,255,0.12);
-  --text: #f8fafc; --text-muted: #a9a9a9;
-  --accent: #22c55e; --red: #dc2626; --blue: #3b82f6; --purple: #8b5cf6;
+  --text: #f8fafc; --text-muted: #d1d5db;
+  --accent: #22c55e; --purple: #8b5cf6;
   --yellow: #f59e0b;
   --border-color: rgba(255,255,255,0.1);
-  --energy-color: #38bdf8;
+  --energy-color: #facc15; /* Enerji üçün sarı rəng */
+  --clicker-bg: #4a45a3;
+  --clicker-shadow: #312e6d;
 }
 *{box-sizing:border-box;margin:0;padding:0; font-family: system-ui, -apple-system, sans-serif;}
 html, body {
     height: 100%;
-    overflow: hidden; /* Səhifənin scroll olmasını əngəlləyir */
+    overflow: hidden;
 }
 body{
-  color: var(--text); background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
+  color: var(--text); background: linear-gradient(135deg, var(--bg1), var(--bg2) 50%, var(--bg3));
   display: flex; flex-direction: column; align-items: center; justify-content: space-between;
   text-align: center;
-  user-select: none; /* Mətn seçimlərini bağlayır */
+  user-select: none;
 }
 .hidden { display: none !important; }
 
-/* Main Game Area */
 .game-container {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-bottom: 80px; /* Footer üçün boşluq */
+    padding-bottom: 75px; /* Footer üçün boşluq */
 }
 
 .page { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; padding: 15px; animation: fadeIn 0.5s ease; }
 .page.active { display: flex; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-#main-page { justify-content: center; text-align: center; }
-.user-greeting { font-size: 1.1rem; font-weight: 600; opacity: .9; margin: 20px 0; }
-
-.balance-display { margin-bottom: 20px; }
-.balance-value {
-    font-size: clamp(2.5rem, 10vw, 4rem);
-    font-weight: 700;
-    display: flex;
-    align-items: center;
+</style>
+<style continue>
+#main-page {
     justify-content: center;
-    gap: 10px;
+    text-align: center;
 }
-.balance-value img { width: clamp(30px, 8vw, 45px); }
+.user-greeting {
+    font-size: 1.1rem;
+    font-weight: 500;
+    opacity: .8;
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
+/* Şəkildəki dizayna uyğun yeni balans stili */
+.balance-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.balance-icon img {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 8px;
+}
+.balance-value {
+    font-size: clamp(3rem, 13vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1;
+}
 
 .clickable-area {
-    width: min(70vw, 280px);
+    width: min(70vw, 290px);
     aspect-ratio: 1/1;
     border-radius: 50%;
     display: grid;
     place-items: center;
     cursor: pointer;
-    background: radial-gradient(circle at 55% 45%, rgba(255,255,255,0.2), transparent 70%), #302b63;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 2px 3px rgba(255,255,255,0.15);
-    transition: transform 0.1s ease;
+    background: var(--clicker-bg);
+    box-shadow: 0 10px 0 var(--clicker-shadow), 0 15px 30px rgba(0,0,0,0.3);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
-.clickable-area:active { transform: scale(0.95); }
-.clickable-area .icon { font-size: clamp(5rem, 25vw, 10rem); filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3)); }
-  <style continue>
-/* Energy Bar */
-.energy-section {
-    width: 90%;
-    max-width: 400px;
-    margin: 20px auto 0;
+.clickable-area:active {
+    transform: translateY(5px);
+    box-shadow: 0 5px 0 var(--clicker-shadow), 0 10px 20px rgba(0,0,0,0.3);
 }
-.energy-text {
-    font-size: 1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-.energy-bar-container {
-    width: 100%;
-    height: 12px;
-    background-color: rgba(0,0,0,0.3);
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.1);
-}
-.energy-bar-fill {
-    height: 100%;
-    width: 100%;
-    background: var(--energy-color);
-    border-radius: 6px;
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px var(--energy-color);
+.clickable-area .icon {
+    font-size: clamp(5rem, 25vw, 10rem);
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+    transform: translateY(-5px); /* İkonu bir az yuxarı çəkir */
 }
 
+/* Enerji və Gəlir Stilləri */
+.game-stats {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.energy-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 .profit-display {
-    margin-top: 15px;
     font-size: 0.9rem;
     color: var(--text-muted);
 }
-
-
-/* Birja/Upgrades Page */
-.page-header { font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
+</style>
+<style continue>
+/* Birja/Yeniləmələr Səhifəsi */
+.page-header { font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; }
 .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
 .tab { padding: 10px 20px; cursor: pointer; font-size: 1rem; font-weight: bold; color: var(--text-muted); border-bottom: 3px solid transparent; }
 .tab.active { color: var(--text); border-bottom-color: var(--accent); }
-
-#upgrade-cards-container {
-    width: 100%;
-    max-width: 500px;
-    height: calc(100% - 150px); /* Adjust height based on header and tabs */
-    overflow-y: auto;
-    padding: 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.upgrade-card {
-    background: var(--card);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    text-align: left;
-}
+#upgrade-cards-container { width: 100%; max-width: 500px; height: calc(100% - 150px); overflow-y: auto; padding: 5px; display: flex; flex-direction: column; gap: 12px; }
+.upgrade-card { background: var(--card); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; text-align: left; }
 .upgrade-card .icon { font-size: 2.5rem; }
 .upgrade-card .details { flex-grow: 1; }
 .upgrade-card .name { font-weight: 600; font-size: 1.1rem; }
 .upgrade-card .meta { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
 .upgrade-card .price { font-weight: bold; color: var(--yellow); }
+.btn-upgrade { padding: 10px 18px; border: none; border-radius: 8px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; }
+.btn-upgrade:disabled { background-color: #555; cursor: not-allowed; }
 
-.btn-upgrade {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 8px;
-    background: var(--accent);
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.btn-upgrade:disabled {
-    background-color: #555;
-    cursor: not-allowed;
-}
-
-  <style continue>
-/* Footer Navigation */
-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: var(--card);
-    backdrop-filter: blur(10px);
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0 15px 0;
-    z-index: 1001;
-    border-top: 1px solid var(--border-color);
-}
-.nav-item {
-    color: var(--text);
-    text-decoration: none;
-    text-align: center;
-    font-size: 0.75rem;
-    padding: 4px 12px;
-    border-radius: 8px;
-    transition: background 0.2s ease;
-    cursor:pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
-.nav-item .icon { font-size: 1.5rem; display: block; }
-.nav-item.active { color: var(--accent); }
-
+/* Footer */
+footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg3); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1001; border-top: 1px solid var(--border-color); }
+.nav-item { color: var(--text); text-decoration: none; text-align: center; font-size: 0.8rem; padding: 4px 12px; border-radius: 8px; cursor:pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: 0.7; }
+.nav-item .icon { font-size: 1.8rem; display: block; }
+.nav-item.active { opacity: 1; font-weight: bold; }
 
 /* Modal */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 9999;
-}
-.modal-content {
-    background: linear-gradient(135deg,var(--bg1),var(--bg2));
-    padding: 30px; border-radius: 12px; text-align: center; color: var(--text);
-    width: min(90vw, 350px);
-}
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(5px); }
+.modal-content { background: linear-gradient(135deg,var(--bg1),var(--bg2)); padding: 30px; border-radius: 12px; text-align: center; color: var(--text); width: min(90vw, 350px); }
 .modal-content h3 { margin-bottom: 15px; }
 .modal-content p { margin-bottom: 25px; line-height: 1.5; }
-.modal-button {
-    padding: 10px 20px; font-size:1rem; border:none;
-    border-radius:8px; cursor:pointer; background: var(--accent); color: white;
-}
+.modal-button { padding: 10px 20px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; background: var(--accent); color: white; }
 </style>
 </head>
 <body>
@@ -215,27 +150,23 @@ footer {
         <div class="user-greeting" id="user-greeting-text">Yüklənir...</div>
 
         <div class="balance-display">
-             <div class="balance-value">
+             <div class="balance-icon">
                 <img src="https://i.imgur.com/aJ3Ew2s.png" alt="Coin">
-                <span id="balance">0</span>
             </div>
+            <div class="balance-value" id="balance">0</div>
         </div>
 
         <div class="clickable-area" id="clickable-area">
             <div class="icon">💰</div>
         </div>
 
-        <div class="energy-section">
+        <div class="game-stats">
             <div class="energy-text">
                 ⚡ <span id="energy-text-value">0/0</span>
             </div>
-            <div class="energy-bar-container">
-                <div class="energy-bar-fill" id="energy-bar"></div>
+            <div class="profit-display">
+                Saatlıq gəlir: <span id="profit-per-hour">0</span>
             </div>
-        </div>
-        
-        <div class="profit-display">
-            Saatlıq gəlir: <span id="profit-per-hour">0</span>
         </div>
     </div>
         <div id="birja-page" class="page">
@@ -257,13 +188,14 @@ footer {
     </div>
 
 </div> ```
+
 ---
 
 ### **HİSSƏ 6/12: HTML Body (Footer və Modal)**
 
 ```html
 <footer>
-    <a class="nav-item active" data-page="main-page"><span class="icon">🏠</span>Əsas</a>
+    <a class="nav-item active" data-page="main-page"><span class="icon">💰</span>Oyun</a>
     <a class="nav-item" data-page="birja-page"><span class="icon">📈</span>Birja</a>
     <a class="nav-item" data-page="leaderboard-page"><span class="icon">🏅</span>Liderlər</a>
 </footer>
@@ -284,11 +216,11 @@ footer {
 
 const firebaseConfig = {
     // BURAYA ÖZ FIREBASE KONFİQURASİYA MƏLUMATLARINIZI YAPIŞDIRIN
-    apiKey: "...",
-    authDomain: "...",
-    databaseURL: "...",
+    apiKey: "AIza...",
+    authDomain: "....firebaseapp.com",
+    databaseURL: "https://....firebasedatabase.app",
     projectId: "...",
-    storageBucket: "...",
+    storageBucket: "....appspot.com",
     messagingSenderId: "...",
     appId: "..."
 };
@@ -302,37 +234,30 @@ let currentUser = null;
 let userProfile = {};
 let gameCards = {};
 let energyInterval = null;
-const ENERGY_REGEN_RATE_PER_SECOND = 0.5; // Saniyədə 0.5 enerji (2 saniyədə 1)
+const ENERGY_REGEN_RATE_PER_SECOND = 1; // Saniyədə 1 enerji
 const OFFLINE_EARNINGS_CAP_HOURS = 3;
 
 // UI Elements
 const balanceEl = document.getElementById('balance');
-const energyBarEl = document.getElementById('energy-bar');
 const energyTextEl = document.getElementById('energy-text-value');
 const profitPerHourEl = document.getElementById('profit-per-hour');
 const clickableArea = document.getElementById('clickable-area');
 const greetingEl = document.getElementById('user-greeting-text');
 const upgradeCardsContainer = document.getElementById('upgrade-cards-container');
-
-  // HİSSƏ 8: Oyunun Başladılması (Initialization)
-
-document.addEventListener('DOMContentLoaded', () => {
+</script>
     tg.ready();
-    tg.expand(); // Tətbiqi tam ekrana açır
+    tg.expand();
 
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         currentUser = tg.initDataUnsafe.user;
         initGame(currentUser);
     } else {
-        // Test üçün (Telegram xaricində)
-        // currentUser = { id: 12345, first_name: 'Test User' }; 
-        // initGame(currentUser);
-        document.body.innerHTML = "<h1>Zəhmət olmasa, bu oyunu Telegram vasitəsilə açın.</h1>";
+        greetingEl.textContent = "Lütfən, Telegram ilə daxil olun.";
     }
 });
 
 async function initGame(user) {
-    greetingEl.textContent = `Salam, ${user.first_name}!`;
+    greetingEl.textContent = user.first_name || "Yüklənir...";
     
     const userRef = db.ref(`users/${user.id}`);
     const userSnapshot = await userRef.once('value');
@@ -352,19 +277,8 @@ async function initGame(user) {
 
 async function handleNewUser(user) {
     const initialProfile = {
-        info: {
-            id: user.id,
-            first_name: user.first_name,
-            username: user.username || '',
-            createdAt: firebase.database.ServerValue.TIMESTAMP
-        },
-        game_data: {
-            coins: 5000,
-            energy_max: 500,
-            energy_current: 500,
-            profit_per_hour: 0,
-            last_active: firebase.database.ServerValue.TIMESTAMP
-        },
+        info: { id: user.id, first_name: user.first_name, username: user.username || '' },
+        game_data: { coins: 5000, energy_max: 500, energy_current: 500, profit_per_hour: 0, last_active: firebase.database.ServerValue.TIMESTAMP },
         purchased_cards: {}
     };
     await db.ref(`users/${user.id}`).set(initialProfile);
@@ -373,13 +287,13 @@ async function handleNewUser(user) {
 async function loadGameData(uid) {
     const snapshot = await db.ref(`users/${uid}/game_data`).once('value');
     userProfile = snapshot.val() || {};
-    // Ensure defaults if fields are missing
     userProfile.coins = userProfile.coins || 0;
     userProfile.energy_max = userProfile.energy_max || 500;
     userProfile.energy_current = userProfile.energy_current ?? 500;
     userProfile.profit_per_hour = userProfile.profit_per_hour || 0;
     updateUI();
-      }
+}
+</script>
   // HİSSƏ 9: Passiv Gəlir və Arxa Plan Prosesləri
 
 async function calculatePassiveIncome(uid) {
@@ -390,7 +304,7 @@ async function calculatePassiveIncome(uid) {
     const maxSeconds = OFFLINE_EARNINGS_CAP_HOURS * 3600;
     const secondsToCalculate = Math.min(secondsPassed, maxSeconds);
 
-    if (secondsToCalculate > 60 && userProfile.profit_per_hour > 0) { // Yalnız 1 dəqiqədən çox keçibsə hesabla
+    if (secondsToCalculate > 60 && userProfile.profit_per_hour > 0) {
         const profitPerSecond = userProfile.profit_per_hour / 3600;
         const earnings = Math.floor(profitPerSecond * secondsToCalculate);
 
@@ -403,7 +317,6 @@ async function calculatePassiveIncome(uid) {
         }
     }
     
-    // Hər oyuna girişte son aktivliyi yenilə
     await db.ref(`users/${uid}/game_data/last_active`).set(now);
 }
 
@@ -426,18 +339,17 @@ function startEnergyRegen(uid) {
         }
     }, 1000 / ENERGY_REGEN_RATE_PER_SECOND);
 }
-  // HİSSƏ 10: Əsas Oyun Məntiqi (Klikləmə və Yeniləmə)
+        </script>
+          // HİSSƏ 10: Əsas Oyun Məntiqi (Klikləmə və Yeniləmə)
 
 function handleTap() {
     if (userProfile.energy_current > 0) {
-        const tapValue = 1; // Hər klikdə 1 coin
-
-        // Optimistic UI update for faster feel
+        const tapValue = 1;
+        
         userProfile.coins += tapValue;
         userProfile.energy_current -= 1;
         updateUI();
 
-        // Update Firebase
         const updates = {};
         updates[`users/${currentUser.id}/game_data/coins`] = firebase.database.ServerValue.increment(tapValue);
         updates[`users/${currentUser.id}/game_data/energy_current`] = firebase.database.ServerValue.increment(-1);
@@ -451,12 +363,12 @@ async function purchaseUpgrade(cardId) {
     const userCardSnapshot = await db.ref(`users/${currentUser.id}/purchased_cards/${cardId}`).once('value');
     const userCardLevel = userCardSnapshot.val()?.level || 0;
 
-    if(userCardLevel >= card.max_level) return; // Maksimum səviyyəyə çatıb
+    if(userCardLevel >= card.max_level) return;
 
     const cost = Math.floor(card.cost_base * Math.pow(card.cost_factor, userCardLevel));
 
     if (userProfile.coins >= cost) {
-        const profitIncrease = card.profit_base; // Sadəlik üçün hər səviyyədə eyni artım
+        const profitIncrease = card.profit_base;
 
         const updates = {};
         updates[`users/${currentUser.id}/game_data/coins`] = firebase.database.ServerValue.increment(-cost);
@@ -464,22 +376,18 @@ async function purchaseUpgrade(cardId) {
         updates[`users/${currentUser.id}/game_data/profit_per_hour`] = firebase.database.ServerValue.increment(profitIncrease);
         
         await db.ref().update(updates);
-        
-        // Kartlar yenidən render edilir
         renderUpgradeCards(); 
     } else {
         alert("Kifayət qədər coin yoxdur!");
     }
-  }
-  // HİSSƏ 11: UI Render Funksiyaları
+}
+        </script>
+          // HİSSƏ 11: UI Render Funksiyaları
 
 function updateUI() {
-    balanceEl.textContent = Math.floor(userProfile.coins).toLocaleString();
+    balanceEl.textContent = Math.floor(userProfile.coins || 0).toLocaleString();
     profitPerHourEl.textContent = (userProfile.profit_per_hour || 0).toLocaleString();
-    
-    const energyPercent = (userProfile.energy_current / userProfile.energy_max) * 100;
-    energyBarEl.style.width = `${energyPercent}%`;
-    energyTextEl.textContent = `${Math.floor(userProfile.energy_current)}/${userProfile.energy_max}`;
+    energyTextEl.textContent = `${Math.floor(userProfile.energy_current || 0)}/${userProfile.energy_max || 500}`;
 }
 
 async function loadUpgradeCards() {
@@ -489,6 +397,7 @@ async function loadUpgradeCards() {
 }
 
 async function renderUpgradeCards() {
+    if (!upgradeCardsContainer) return;
     upgradeCardsContainer.innerHTML = '';
     const activeCategory = document.querySelector('.tab.active').dataset.category;
     
@@ -521,18 +430,16 @@ async function renderUpgradeCards() {
         upgradeCardsContainer.innerHTML += cardHTML;
     }
 }
-  // HİSSƏ 12: UI Hadisələri (Event Listeners) və Son
+        </script>
+          // HİSSƏ 12: UI Hadisələri (Event Listeners) və Son
 
 function attachUIListeners() {
-    // Clicker
     clickableArea.addEventListener('click', handleTap);
 
-    // Modal close button
     document.getElementById('close-modal-btn').addEventListener('click', () => {
         document.getElementById('offline-earnings-modal').classList.add('hidden');
     });
 
-    // Navigation
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', (e) => {
             const pageId = e.currentTarget.dataset.page;
@@ -540,7 +447,6 @@ function attachUIListeners() {
         });
     });
 
-    // Upgrade Card Buttons (Event Delegation)
     upgradeCardsContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-upgrade')) {
             const cardId = e.target.dataset.cardId;
@@ -548,7 +454,6 @@ function attachUIListeners() {
         }
     });
     
-    // Tab switching
     document.querySelectorAll('.tabs .tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
             document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
@@ -566,7 +471,6 @@ function switchPage(pageId) {
         item.classList.toggle('active', item.dataset.page === pageId);
     });
 }
-
 </script>
 </body>
 </html>
