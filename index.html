@@ -42,7 +42,7 @@ body{
 .page.active { display: flex; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
-<style continue>
+<style>
 #main-page {
     justify-content: center;
     text-align: center;
@@ -114,7 +114,7 @@ body{
     color: var(--text-muted);
 }
 </style>
-<style continue>
+<style>
 /* Birja/Yeniləmələr Səhifəsi */
 .page-header { font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; }
 .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
@@ -189,11 +189,6 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg3
 
 </div> ```
 
----
-
-### **HİSSƏ 6/12: HTML Body (Footer və Modal)**
-
-```html
 <footer>
     <a class="nav-item active" data-page="main-page"><span class="icon">💰</span>Oyun</a>
     <a class="nav-item" data-page="birja-page"><span class="icon">📈</span>Birja</a>
@@ -212,8 +207,6 @@ footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg3
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-// HİSSƏ 7: Skript Başlanğıcı və Firebase Konfiqurasiyası
-
 const firebaseConfig = {
     // BURAYA ÖZ FIREBASE KONFİQURASİYA MƏLUMATLARINIZI YAPIŞDIRIN
     apiKey: "AIza...",
@@ -245,6 +238,7 @@ const clickableArea = document.getElementById('clickable-area');
 const greetingEl = document.getElementById('user-greeting-text');
 const upgradeCardsContainer = document.getElementById('upgrade-cards-container');
 </script>
+document.addEventListener('DOMContentLoaded', () => {
     tg.ready();
     tg.expand();
 
@@ -293,10 +287,7 @@ async function loadGameData(uid) {
     userProfile.profit_per_hour = userProfile.profit_per_hour || 0;
     updateUI();
 }
-</script>
-  // HİSSƏ 9: Passiv Gəlir və Arxa Plan Prosesləri
-
-async function calculatePassiveIncome(uid) {
+  async function calculatePassiveIncome(uid) {
     const now = Date.now();
     const lastActive = userProfile.last_active || now;
     const secondsPassed = Math.floor((now - lastActive) / 1000);
@@ -339,10 +330,7 @@ function startEnergyRegen(uid) {
         }
     }, 1000 / ENERGY_REGEN_RATE_PER_SECOND);
 }
-        </script>
-          // HİSSƏ 10: Əsas Oyun Məntiqi (Klikləmə və Yeniləmə)
-
-function handleTap() {
+          function handleTap() {
     if (userProfile.energy_current > 0) {
         const tapValue = 1;
         
@@ -381,10 +369,7 @@ async function purchaseUpgrade(cardId) {
         alert("Kifayət qədər coin yoxdur!");
     }
 }
-        </script>
-          // HİSSƏ 11: UI Render Funksiyaları
-
-function updateUI() {
+          function updateUI() {
     balanceEl.textContent = Math.floor(userProfile.coins || 0).toLocaleString();
     profitPerHourEl.textContent = (userProfile.profit_per_hour || 0).toLocaleString();
     energyTextEl.textContent = `${Math.floor(userProfile.energy_current || 0)}/${userProfile.energy_max || 500}`;
@@ -430,10 +415,7 @@ async function renderUpgradeCards() {
         upgradeCardsContainer.innerHTML += cardHTML;
     }
 }
-        </script>
-          // HİSSƏ 12: UI Hadisələri (Event Listeners) və Son
-
-function attachUIListeners() {
+          function attachUIListeners() {
     clickableArea.addEventListener('click', handleTap);
 
     document.getElementById('close-modal-btn').addEventListener('click', () => {
